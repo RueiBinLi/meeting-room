@@ -1,0 +1,43 @@
+[
+  {
+    "email": "user1@example.com",
+    "password": "123",
+    "name": "asd",
+    "verificationCode": ""
+  },
+  {
+    "email": "user2@example.com",
+    "password": "123",
+    "name": "asd",
+    "verificationCode": ""
+  },
+  {
+    "email": "user3@example.com",
+    "password": "123",
+    "name": "asd",
+    "verificationCode": ""
+  },
+  {
+    "email": "123@gmail.com",
+    "password": "123",
+    "name": "123",
+    "verificationCode": ""
+  },
+  {
+    "email": "234@gmail.com",
+    "password": "123",
+    "name": "123",
+    "verificationCode": ""
+  },
+  {
+    "email": "robbylee0929@gmail.com",
+    "password": "1234",
+    "name": "123",
+    "verificationCode": ""
+  },
+  {
+    "email": "123@123",
+    "password": "123",
+    "name": "123"
+  }
+]

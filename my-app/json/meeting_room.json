@@ -1,0 +1,74 @@
+[
+    {
+        "id": 1,
+        "name": "會議室1",
+        "city": "臺南市",
+        "address": "臺南市中西區友愛街3號1樓-102房",
+        "status": "未使用",
+        "img": "../assets/img/meeting_room/1.jpg",
+        "description": "會議室1位於臺南市中西區友愛街3號1樓-102房，提供最多10人的會議空間，設備齊全，歡迎預約使用。",
+        "amount": 10,
+        "openTime": "09:00",
+        "closeTime": "18:00"
+    },
+    {
+        "id": 2,
+        "name": "會議室2",
+        "city": "臺南市",
+        "address": "臺南市中西區友愛街3號1樓-105房",
+        "status": "未使用",
+        "img": "../assets/img/meeting_room/2.jpg",
+        "description": "會議室2位於臺南市中西區友愛街3號1樓-105房，提供最多8人的會議空間，設備齊全，歡迎預約使用。",
+        "amount": 8,
+        "openTime": "09:00",
+        "closeTime": "20:00"
+    },
+    {
+        "id": 3,
+        "name": "會議室3",
+        "city": "臺南市",
+        "address": "臺南市中西區友愛街3號1樓-107房",
+        "status": "未使用",
+        "img": "../assets/img/meeting_room/3.jpg",
+        "description": "會議室3位於臺南市中西區友愛街3號1樓-107房，提供最多6人的會議空間，設備齊全，歡迎預約使用。",
+        "amount": 6,
+        "openTime": "08:00",
+        "closeTime": "19:00"
+    },
+    {
+        "id": 4,
+        "name": "會議室4",
+        "city": "臺南市",
+        "address": "臺南市中西區友愛街3號1樓-103房",
+        "status": "使用中",
+        "img": "../assets/img/meeting_room/4.jpg",
+        "description": "會議室4位於臺南市中西區友愛街3號1樓-103房，提供最多12人的會議空間，設備齊全，歡迎預約使用。",
+        "amount": 12,
+        "openTime": "08:00",
+        "closeTime": "20:00"
+    },
+    {
+        "id": 5,
+        "name": "會議室5",
+        "city": "臺南市",
+        "address": "臺南市中西區友愛街3號1樓-108房",
+        "status": "使用中",
+        "img": "../assets/img/meeting_room/5.jpg",
+        "description": "會議室5位於臺南市中西區友愛街3號1樓-108房，提供最多4人的會議空間，設備齊全，歡迎預約使用。",
+        "amount": 4,
+        "openTime": "09:00",
+        "closeTime": "18:00"
+    },
+    {
+        "id": 6,
+        "name": "會議室6",
+        "city": "臺南市",
+        "address": "臺南市中西區友愛街3號1樓-104房",
+        "status": "使用中",
+        "img": "../assets/img/meeting_room/6.jpg",
+        "description": "會議室6位於臺南市中西區友愛街3號1樓-104房，提供最多8人的會議空間，設備齊全，歡迎預約使用。",
+        "amount": 8,
+        "openTime": "07:00",
+        "closeTime": "21:00"
+    }
+]
