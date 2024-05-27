@@ -170,6 +170,36 @@ app.post('/reset-password', (req, res) => {
     });
 });
 
+app.post('/update-room-reservation-status', (req, res) => {
+    const { room, date, startTime, endTime, status } = req.body;
+    const filePath = path.join(__dirname, 'json/room_reservation.json');
+
+    fs.readFile(filePath, 'utf8', (err, data) => {
+        if (err) {
+            console.error('Error reading file:', err);
+            return res.status(500).send('Error reading file');
+        }
+
+        let reservations = JSON.parse(data);
+        // Update the status of the reservation (assuming there's only one reservation to update)
+        // You can modify this logic to suit your actual data structure
+        reservations.forEach(reservation => {
+            if (reservation.room === room && reservation.date === date && reservation.startTime === startTime && reservation.endTime === endTime) {
+                reservation.status = status;
+            }
+        })
+
+        fs.writeFile(filePath, JSON.stringify(reservations, null, 2), (err) => {
+            if (err) {
+                console.error('Error writing file:', err);
+                return res.status(500).send('Error writing file');
+            }
+
+            res.json({ message: 'Status updated successfully' });
+        });
+    });
+});
+
 app.get('/room-reservation', (req, res) => {
     const filePath = path.join(__dirname, 'json', 'room_reservation.json');
     fs.readFile(filePath, 'utf8', (err, data) => {
