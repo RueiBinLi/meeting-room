@@ -600,7 +600,8 @@ progress {
 
 .img-fluid {
   max-width: 100%;
-  height: auto;
+  width: 100%;
+  height: 100%;
 }
 
 .img-fluid-custom {
@@ -11111,24 +11112,6 @@ header.masthead .masthead-heading {
   display: block;
   /* margin: 0 auto; */
 }
-#portfolio-search .portfolio-item .portfolio-searchEquip-link .portfolio-hover {
-  display: flex;
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  background: rgba(255, 200, 0, 0.9);
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  transition: opacity ease-in-out 0.25s;
-}
-#portfolio-search .portfolio-item .portfolio-searchEquip-link .portfolio-hover .portfolio-hover-content {
-  font-size: 1.25rem;
-  color: white;
-}
-#portfolio-search .portfolio-item .portfolio-searchEquip-link:hover .portfolio-hover {
-  opacity: 1;
-}
 
 #portfolio-search .portfolio-item .portfolio-caption {
   padding: 1.5rem;
@@ -11155,12 +11138,12 @@ header.masthead .masthead-heading {
   margin-left: auto;
   margin-right: auto;
 }
-#portfolio-equip-search .portfolio-item .portfolio-equip-search-link {
+#portfolio-equip-search .portfolio-item .portfolio-searchEquip-link {
   position: relative;
   display: block;
   /* margin: 0 auto; */
 }
-#portfolio-equip-search .portfolio-item .portfolio-equip-search-link .portfolio-hover {
+#portfolio-equip-search .portfolio-item .portfolio-searchEquip-link .portfolio-hover {
   display: flex;
   position: absolute;
   width: 100%;
@@ -11171,35 +11154,11 @@ header.masthead .masthead-heading {
   opacity: 0;
   transition: opacity ease-in-out 0.25s;
 }
-#portfolio-equip-search .portfolio-item .portfolio-equip-search-link .portfolio-hover .portfolio-hover-content {
+#portfolio-equip-search .portfolio-item .portfolio-searchEquip-link .portfolio-hover .portfolio-hover-content {
   font-size: 1.25rem;
   color: white;
 }
-#portfolio-equip-search .portfolio-item .portfolio-equip-search-link:hover .portfolio-hover {
-  opacity: 1;
-}
-
-#portfolio-equip-search .portfolio-item .portfolio-equip-searchEquip-link {
-  position: relative;
-  display: block;
-  /* margin: 0 auto; */
-}
-#portfolio-equip-search .portfolio-item .portfolio-equip-searchEquip-link .portfolio-hover {
-  display: flex;
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  background: rgba(255, 200, 0, 0.9);
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  transition: opacity ease-in-out 0.25s;
-}
-#portfolio-equip-search .portfolio-item .portfolio-equip-searchEquip-link .portfolio-hover .portfolio-hover-content {
-  font-size: 1.25rem;
-  color: white;
-}
-#portfolio-equip-search .portfolio-item .portfolio-equip-searchEquip-link:hover .portfolio-hover {
+#portfolio-equip-search .portfolio-item .portfolio-searchEquip-link:hover .portfolio-hover {
   opacity: 1;
 }
 

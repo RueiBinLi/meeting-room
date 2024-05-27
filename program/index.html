@@ -54,14 +54,10 @@
                 <div class="text-lg-start" id="loggedInSection" hidden>
                     <div class="reservation-block">
                         <div class="reservation-details" id="next-reservation"></div>
-                        <div class="reservation-status" id="checkIn" hidden>
-                            <button class="btn btn-primary btn-l" id="checkInBtn" onclick="CheckInToCheckOut(this)">簽到</button>
-                        </div>
-                        <div class="reservation-status" id="checkOut" hidden>
-                            <button class="btn btn-primary btn-l" id="checkOutBtn" onclick="CheckOutToNoOpen(this)">簽退</button>
-                        </div>
-                        <div class="reservation-status" id="notOpen" hidden>
-                            <button disabled class="btn btn-primary btn-l">未開放</button>
+                        <div class="reservation-status">
+                            <button class="btn btn-primary btn-l" id="checkInBtn" hidden>簽到</button>
+                            <button class="btn btn-primary btn-l" id="checkOutBtn" hidden>簽退</button>
+                            <button disabled class="btn btn-primary btn-l" id="notOpenBtn" hidden>未開放</button>
                         </div>
                     </div>
                 </div>
@@ -328,7 +324,7 @@
                             <th scope="col">取消預約</th>
                         </tr>
                     </thead>
-                    <tbody id="myReservationTable-room">
+                    <tbody id="myReservationTable-room" hidden>
                         <!-- <tr>
                             <td>1</td>
                             <td>2024/10/10</td>
@@ -365,7 +361,7 @@
                             <th scope="col">取消預約</th>
                         </tr>
                     </thead>
-                    <tbody id="myReservationTable-equip">
+                    <tbody id="myReservationTable-equip" hidden>
                         <tr>
                             <!-- <td>1</td>
                             <td>2024/10/10</td>
@@ -603,7 +599,7 @@
                                 <div class="modal-body">
                                     <div id="reservate-roomContainer"></div>
                                     <div class="row align-items-center mb-4">
-                                        <button class="btn btn-primary btn-xl custom-button-width mx-auto" type="button" data-bs-dismiss="modal" id="reservateRoom-success">
+                                        <button class="btn btn-primary btn-xl custom-button-width mx-auto" type="button" id="reservateRoom-success">
                                             確認
                                         </button>
                                     </div>
@@ -629,7 +625,7 @@
                                 <div class="modal-body">
                                     <div id="reservate-equipContainer"></div>
                                     <div class="row align-items-center mb-4">
-                                        <button class="btn btn-primary btn-xl custom-button-width mx-auto" type="button" data-bs-dismiss="modal" id="reservateEquip-success">
+                                        <button class="btn btn-primary btn-xl custom-button-width mx-auto" type="button" id="reservateEquip-success">
                                             確認
                                         </button>
                                     </div>
