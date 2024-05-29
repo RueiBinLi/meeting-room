@@ -55,8 +55,23 @@ window.addEventListener('DOMContentLoaded', event => {
     });
 
     checkLoginStatus();
-    document.getElementById('checkIn').hidden = false;
+    document.getElementById('checkInBtn').hidden = false;
+    loginEvent();
+
+    // if(window.location.pathname.endsWith('index.html')) {
+    //     checkLoginStatus();
+    //     document.getElementById('checkInBtn').hidden = false;
+    //     loginEvent();
+    // }
 });
+
+// document.addEventListener('DOMContentLoaded', function() {
+//     if (window.location.pathname.endsWith('index.html')) {
+//         console.log('DOM loaded');
+        
+//     }
+// });
+
 
 function checkLoginStatus() {
     const loggedIn = localStorage.getItem('loggedIn');
@@ -65,23 +80,23 @@ function checkLoginStatus() {
         document.getElementById('loggedOutSection').hidden = true;
         document.getElementById('navbar-login').hidden = true;
         document.getElementById('navbar-logout').hidden = false;
-        document.getElementById('myReservationTable-room').hidden = false;
-        document.getElementById('myReservationTable-equip').hidden = false;
-        var pageBtns = document.getElementsByClassName('pageBtn');
-        for (var i = 0; i < pageBtns.length; i++) {
-            pageBtns[i].hidden = false;
-        }
+        // document.getElementById('myReservationTable-room').hidden = false;
+        // document.getElementById('myReservationTable-equip').hidden = false;
+        // var pageBtns = document.getElementsByClassName('pageBtn');
+        // for (var i = 0; i < pageBtns.length; i++) {
+        //     pageBtns[i].hidden = false;
+        // }
     } else {
         document.getElementById('loggedInSection').hidden = true;
         document.getElementById('loggedOutSection').hidden = false;
         document.getElementById('navbar-login').hidden = false;
         document.getElementById('navbar-logout').hidden = true;
-        document.getElementById('myReservationTable-room').hidden = true;
-        document.getElementById('myReservationTable-equip').hidden = true;
-        var pageBtns = document.getElementsByClassName('pageBtn');
-        for (var i = 0; i < pageBtns.length; i++) {
-            pageBtns[i].hidden = true;
-        }
+        // document.getElementById('myReservationTable-room').hidden = true;
+        // document.getElementById('myReservationTable-equip').hidden = true;
+        // var pageBtns = document.getElementsByClassName('pageBtn');
+        // for (var i = 0; i < pageBtns.length; i++) {
+        //     pageBtns[i].hidden = true;
+        // }
     }
 }
 
@@ -108,7 +123,7 @@ function logout() {
 }
 
 
-$(document).ready(function() {
+function loginEvent() {
     $('#logInButton').on('click', function(event) {
         event.preventDefault(); // Prevent the default form submission
 
@@ -142,10 +157,8 @@ $(document).ready(function() {
                 var emailExists = false;
                 var passwordExists = false;
                 data.forEach(user => {
-                    if (user.email === email) {
+                    if (user.email === email && user.password === password) {
                         emailExists = true;
-                    }
-                    if (user.password === password) {
                         passwordExists = true;
                     }
                 });
@@ -163,7 +176,7 @@ $(document).ready(function() {
             }
         });
     });
-});
+}
 
 let reservationInfo = {};
 
@@ -191,34 +204,36 @@ $(document).ready(function() {
                 // });
 
                 let nextReservationBody = '';
-                nextReservationBody += `
-                    <p class="text-black">下一個預約:</p>
-                `;
+                nextReservationBody += `<p class="text-black">下一個預約:</p>`;
                 if (data.length > 0) {
                     for (const reservation of data) {
                         const start = new Date(reservation.date + ' ' + reservation.startTime);
                         const end = new Date(reservation.date + ' ' + reservation.endTime);
-                        if(now <= end && reservation.status === '尚未結束') {
+                        // console.log('Next reservation:', reservation);
+                        if(now < end && reservation.status === '尚未結束') {
                             nextReservationBody += `
-                                <p class="text-black text fs-5">會議室: ${reservation.room}</p>
+                                <p class="text-black text fs-5">會議室: ${reservation.name}</p>
                                 <p class="text-black text fs-5">日期: ${reservation.date}</p>
                                 <p class="text-black text fs-5">開始時間: ${reservation.startTime} 結束時間: ${reservation.endTime}</p>
                             `;
                             reservationInfo = {
-                                room: reservation.room,
+                                name: reservation.name,
                                 date: reservation.date,
                                 startTime: reservation.startTime,
                                 endTime: reservation.endTime
                             };
                             break;
-                        } else {
-                            nextReservationBody += '<p class="text-black text fs-5">沒有預約</p>';
-                            break;
                         }
                     }
-                } else {
-                    nextReservationBody += '<p class="text-black text fs-5">沒有預約</p>';
                 }
+
+                if (nextReservationBody === '<p class="text-black">下一個預約:</p>') {
+                    nextReservationBody += '<p class="text-black text fs-5">沒有預約</p>';
+                    document.getElementById('checkInBtn').hidden = true;
+                    document.getElementById('checkOutBtn').hidden = true;
+                    document.getElementById('notOpenBtn').hidden = false;
+                }
+
                 $('#next-reservation').html(nextReservationBody);
 
                 // const nextReservation = data.find(reservation => {
@@ -243,7 +258,7 @@ $(document).ready(function() {
 
     loadReservation();
 
-    setInterval(loadReservation, 1000);
+    // setInterval(loadReservation, 1000);
 });
 $(document).ready(function() {
     document.getElementById('checkInBtn').hidden = false;
@@ -256,17 +271,17 @@ $(document).ready(function() {
         document.getElementById('checkOutBtn').hidden = true;
         document.getElementById('notOpenBtn').hidden = false;
 
-        const reservationRoom = reservationInfo.room;
+        const reservationName = reservationInfo.name;
         const reservationDate = reservationInfo.date;
         const reservationStartTime = reservationInfo.startTime;
         const reservationEndTime = reservationInfo.endTime;
-        console.log(reservationRoom, reservationDate, reservationStartTime, reservationEndTime);
+        console.log(reservationName, reservationDate, reservationStartTime, reservationEndTime);
 
         $.ajax({
             url: "http://localhost:3000/update-room-reservation-status",
-            type: 'POST', // or 'PUT' depending on the server-side implementation
+            type: 'POST', 
             contentType: 'application/json',
-            data: JSON.stringify({ room: reservationRoom, date: reservationDate, startTime: reservationStartTime, endTime: reservationEndTime, status: '已結束' }),
+            data: JSON.stringify({ name: reservationName, date: reservationDate, startTime: reservationStartTime, endTime: reservationEndTime, status: '已結束' }),
             dataType: 'json',
             success: function(data) {
                 console.log('Status updated successfully', data);
@@ -317,9 +332,18 @@ $(document).ready(function() {
                     <td>${reservation.date}</td>
                     <td>${reservation.startTime}</td>
                     <td>${reservation.endTime}</td>
-                    <td>${reservation.room}</td>
+                    <td>${reservation.name}</td>
                     <td>${reservation.status}</td>
-                    <td><button class="btn btn-secondary btn-l" onclick="deleteRow(this)">取消</button></td>
+                    <td><button class="btn btn-secondary btn-l" 
+                                onclick="deleteRowRoom(this)"
+                                data-date="${reservation.date}"
+                                data-startTime="${reservation.startTime}"
+                                data-endTime="${reservation.endTime}"
+                                data-name="${reservation.name}"
+                                data-status="${reservation.status}">
+                            取消
+                        </button>
+                    </td>
                 </tr>
             `;
         });
@@ -346,12 +370,35 @@ $(document).ready(function() {
         renderPagination_room();
     }
 
-    window.deleteRow = function(button) {
-        const row = $(button).closest('tr');
-        const rowIndex = row.index();
-        const dataIndex = (currentPage - 1) * rowsPerPage + rowIndex;
-        
-        reservations.splice(dataIndex, 1);
+    window.deleteRowRoom = function(button) {
+        const row = button.closest('tr');
+        const reservationDate = button.getAttribute('data-date');
+        const reservationStartTime = button.getAttribute('data-startTime');
+        const reservationEndTime = button.getAttribute('data-endTime');
+        const reservationName = button.getAttribute('data-name');
+        const reservationStatus = button.getAttribute('data-status');
+
+        $.ajax({
+            url: "http://localhost:3000/delete-room-reservation",
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ 
+                date: reservationDate,
+                startTime: reservationStartTime,
+                endTime: reservationEndTime,
+                name: reservationName,
+                status: reservationStatus
+             }),
+            dataType: 'json',
+            success: function(data) {
+                console.log('Status updated successfully', data);
+                row.remove();
+            },
+            error: function(error) {
+                console.error('Error updating status', error);
+            }
+        });
+
         renderTable_room();
         renderPagination_room();
     }
@@ -401,7 +448,16 @@ $(document).ready(function() {
                     <td>${reservation.endTime}</td>
                     <td>${reservation.equipment}</td>
                     <td>${reservation.status}</td>
-                    <td><button class="btn btn-secondary btn-l" onclick="deleteRow_equip(this)">取消</button></td>
+                    <td><button class="btn btn-secondary btn-l" 
+                                onclick="deleteRowEquip(this)"
+                                data-date="${reservation.date}"
+                                data-startTime="${reservation.startTime}"
+                                data-endTime="${reservation.endTime}"
+                                data-name="${reservation.name}"
+                                data-status="${reservation.status}">
+                            取消
+                        </button>
+                    </td>
                 </tr>
             `;
         });
@@ -428,12 +484,44 @@ $(document).ready(function() {
         renderPagination_equip();
     }
 
-    window.deleteRow_equip = function(button) {
-        const row = $(button).closest('tr');
-        const rowIndex = row.index();
-        const dataIndex = (currentPage - 1) * rowsPerPage + rowIndex;
-        
-        reservations.splice(dataIndex, 1);
+    window.deleteRowEquip = function(button) {
+        const row = button.closest('tr');
+
+        const reservationDate = button.getAttribute('data-date');
+        const reservationStartTime = button.getAttribute('data-startTime');
+        const reservationEndTime = button.getAttribute('data-endTime');
+        const reservationName = button.getAttribute('data-name');
+        const reservationStatus = button.getAttribute('data-status');
+
+        console.log('Deleting reservation:', {
+            date: reservationDate,
+            startTime: reservationStartTime,
+            endTime: reservationEndTime,
+            name: reservationName,
+            status: reservationStatus
+        });
+
+        $.ajax({
+            url: 'http://localhost:3000/delete-equip-reservation',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                date: reservationDate,
+                startTime: reservationStartTime,
+                endTime: reservationEndTime,
+                name: reservationName,
+                status: reservationStatus
+            }),
+            success: function(response) {
+                console.log('Reservation deleted successfully', response);
+                // 删除行元素
+                row.remove();
+            },
+            error: function(error) {
+                console.error('Error deleting reservation', error);
+            }
+        });
+    
         renderTable_equip();
         renderPagination_equip();
     }
@@ -866,7 +954,7 @@ $(document).ready(function() {
 
     function handleRoomClick(event) {
         event.preventDefault();
-        const roomId = event.currentTarget.getAttribute('data-room-id');
+        const roomName = event.currentTarget.getAttribute('data-room-name');
 
         $.ajax({
             url: "http://localhost:3000/meeting-room",
@@ -874,7 +962,7 @@ $(document).ready(function() {
             success: function(data) {
                 let roomBody = '';
                 let roomBodyForStatus = '';
-                const room = data.find(room => room.id == roomId);
+                const room = data.find(room => room.name == roomName);
                 if (room) {
                     roomBody += `
                         <h2 class="text-uppercase">${room.name}</h2>
@@ -916,7 +1004,7 @@ $(document).ready(function() {
                             <div class="text-center"><label for="endTimeSearch-forStatus">結束時間:</label></div>
                                 <select class="custom-form-select text-center flatpickr" id="endTimeSearch-forStatus"></select>
                             </div>
-                        </div>
+                        </div> 
                     `;
                 }
                 $('#reservate-roomContainer').html(roomBody);
@@ -939,7 +1027,7 @@ $(document).ready(function() {
                 roomBody += `
                     <div class="col-md-4 col-sm-6 mb-4">
                         <div class="portfolio-item port">
-                            <a class="portfolio-search-link" data-bs-toggle="modal" href="#reservation-room" data-room-id="${room.id}">
+                            <a class="portfolio-search-link" data-bs-toggle="modal" href="#reservation-room" data-room-name="${room.name}">
                                 <div class="portfolio-hover">
                                     <div class="portfolio-hover-content"><i class="fas fa-plus fa-3x"></i></div>
                                 </div>
@@ -974,7 +1062,7 @@ $(document).ready(function() {
                 equipBody += `
                     <div class="col-md-4 col-sm-6 mb-4">
                         <div class="portfolio-item port">
-                            <a class="portfolio-searchEquip-link" data-bs-toggle="modal" href="#reservation-equip" data-equipment-id="${equipment.id}">
+                            <a class="portfolio-searchEquip-link" data-bs-toggle="modal" href="#reservation-equip" data-equipment-name="${equipment.name}">
                                 <div class="portfolio-hover">
                                     <div class="portfolio-hover-content"><i class="fas fa-plus fa-3x"></i></div>
                                 </div>
@@ -1137,41 +1225,61 @@ $(document).ready(function() {
 });
 
 $(document).ready(function() {       
-    $('#reservateRoom-success').on('click', function(event) {
-        event.preventDefault();
-        $('#alertContainer-reservateRoom-success').html('<div class="alert alert-success">預約成功</div>');
-        const roomLinks = document.getElementsByClassName('portfolio-link');
-        for (let i = 0; i < roomLinks.length; i++) {
-            roomLinks[i].addEventListener('click', reservateForm);
-        }
-    });
+    // $('#reservateRoom-success').on('click', function(event) {
+    //     event.preventDefault();
+    //     $('#alertContainer-reservateRoom-success').html('<div class="alert alert-success">預約成功</div>');
+    //     const roomLinks = document.getElementsByClassName('portfolio-link');
+    //     for (let i = 0; i < roomLinks.length; i++) {
+    //         roomLinks[i].addEventListener('click', reservateForm);
+    //     }
+    // });
 
-    $('#reservateRoom-success-forStatus').on('click', function(event) {
+    // function handleReservation(event) {
+    //     event.preventDefault();
+    //     $('#alertContainer-reservateRoom-success-forStatus').html('<div class="alert alert-success">預約成功</div>');
+    //     reservateForm(event);
+    // }
+
+    // $('#reservateRoom-success-forStatus').off('click').on('click', handleReservation);
+
+    function handleReservation(event, reservationInfo) {
         event.preventDefault();
         $('#alertContainer-reservateRoom-success-forStatus').html('<div class="alert alert-success">預約成功</div>');
-        const roomLinks_forStatus = document.getElementsByClassName('portfolio-link');
-        for (let i = 0; i < roomLinks_forStatus.length; i++) {
-            roomLinks_forStatus[i].addEventListener('click', reservateForm);
-        }
-    });
+        reservateForm(event, reservationInfo);
+    }
+    
+    const roomLinks_forStatus = document.getElementsByClassName('portfolio-link');
+    for (let i = 0; i < roomLinks_forStatus.length; i++) {
+        roomLinks_forStatus[i].addEventListener('click', function(event) {
+            const reservationInfo = {
+                room: this.getAttribute('data-room-name'),
+            };
 
-    $('#reservateEquip-success').on('click', function(event) {
-        event.preventDefault();
-        $('#alertContainer-reservateEquip-success').html('<div class="alert alert-success">預約成功</div>');
-        const equipLinks = document.getElementsByClassName('portfolio-link');
-        for (let i = 0; i < equipLinks.length; i++) {
-            equipLinks[i].addEventListener('click', reservateForm);
-        }
-    });
+            console.log('Reservation info:', reservationInfo);
+    
+            $('#reservateRoom-success-forStatus').off('click').on('click', function(event) {
+                handleReservation(event, reservationInfo);
+            });
+        });
+    }
 
-    $('#reservateEquip-success-forStatus').on('click', function(event) {
-        event.preventDefault();
-        $('#alertContainer-reservateEquip-success-forStatus').html('<div class="alert alert-success">預約成功</div>');
-        const equipLinks_forStatus = document.getElementsByClassName('portfolio-link');
-        for (let i = 0; i < equipLinks_forStatus.length; i++) {
-            equipLinks_forStatus[i].addEventListener('click', reservateForm);
-        }
-    });
+    // $('#reservateEquip-success').on('click', function(event) {
+    //     event.preventDefault();
+    //     $('#alertContainer-reservateEquip-success').html('<div class="alert alert-success">預約成功</div>');
+    //     const equipLinks = document.getElementsByClassName('portfolio-link');
+    //     for (let i = 0; i < equipLinks.length; i++) {
+    //         equipLinks[i].addEventListener('click', reservateForm);
+    //     }
+    // });
+
+    // $('#reservateEquip-success-forStatus').on('click', function(event) {
+    //     event.preventDefault();
+    //     $('#alertContainer-reservateEquip-success-forStatus').html('<div class="alert alert-success">預約成功</div>');
+    //     const equipLinks_forStatus = document.getElementsByClassName('portfolio-link');
+    //     for (let i = 0; i < equipLinks_forStatus.length; i++) {
+    //         equipLinks_forStatus[i].addEventListener('click', reservateForm);
+    //     }
+    // });
 });
 
 function reservateForm(event) {
@@ -1185,7 +1293,7 @@ function reservateForm(event) {
         url: "http://localhost:3000/meeting-room",
         dataType: 'json',
         success: function(data) {
-            const room = data.find(room => room.id == roomName);
+            const room = data.find(room => room.name == roomName);
             console.log(room);
             if(room) {
                 // 新的預約對象

@@ -39,5 +39,11 @@
     "email": "123@123",
     "password": "123",
     "name": "123"
+  },
+  {
+    "email": "he001295863@gmail.com",
+    "password": "1234567",
+    "name": "123",
+    "verificationCode": ""
   }
 ]

@@ -30,284 +30,20 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarResponsive">
                     <ul class="navbar-nav text-uppercase ms-auto py-4 py-lg-0">
-                        <li class="nav-item"><a class="nav-link" href="#services">打卡專區</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#portfolio">目前使用情形</a></li>
-                        <li class="nav-item"><a class="nav-link" href="reservationPage.html" target="_blank">預約</a></li>
-                        <li class="nav-item"><a class="nav-link" href="reservationTable.html" target="_blank">我的預定</a></li>
-                        <li class="nav-item me-0"><a class="nav-link" id="navbar-logout" onclick="logout()" hidden>登出</a></li>
-                        <li class="nav-item me-0"><a class="nav-link" data-bs-toggle="modal" href="#login_page" id="navbar-login">登入</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#myRoomReservation">我的會議室預定</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#myEquipReservation">我的設備預定</a></li>
                     </ul>
                 </div>
             </div>
         </nav>
-        <!-- Masthead-->
         <header class="masthead">
             <div class="container">
-                <div class="masthead-subheading">歡迎來到會議室預約系統</div>
-                <a class="btn btn-primary btn-xl text-uppercase" href="#services">更多</a>
+                <!-- <div class="masthead-subheading">歡迎來到會議室預約系統</div>
+                <a class="btn btn-primary btn-xl text-uppercase" href="#services">更多</a> -->
             </div>
         </header>
-        <!-- Services-->
-        <section class="page-section" id="services">
-            <div class="container">
-                <h2 class="text-center">打卡專區</h2>
-                <div class="text-lg-start" id="loggedInSection" hidden>
-                    <div class="reservation-block">
-                        <div class="reservation-details" id="next-reservation"></div>
-                        <div class="reservation-status">
-                            <button class="btn btn-primary btn-l" id="checkInBtn" hidden>簽到</button>
-                            <button class="btn btn-primary btn-l" id="checkOutBtn" hidden>簽退</button>
-                            <button disabled class="btn btn-primary btn-l" id="notOpenBtn" hidden>未開放</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="text-lg-start" id="loggedOutSection" hidden>
-                    <div class="reservation-block">
-                        <div class="reservation-details">
-                            <p class="text-black">下一個預約:</p>
-                            <p class="no-reservation text-black text">請先登入</p>
-                        </div>
-                        <div class="reservation-status">
-                            <button disabled class="btn btn-primary btn-l">未開放</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <!-- Meeting Room Using and Equipment Using status-->
-        <section class="page-section bg-light" id="portfolio">
-            <div class="container">
-                <div class="text-center">
-                    <h2 class="section-heading text-uppercase">目前使用情形</h2>
-                    <h3 class="section-subheading text-muted">查看目前會議室和設備的使用情況</h3>
-                </div>
-                <div class="row">
-                    <h4 class="text-center">會議室使用情形</h4>
-                </div>
-                <div id="roomContainer" class="row"></div>
-                <div class="row">
-                    <h4 class="text-center">設備使用情形</h4>
-                </div>
-                <div id="equipContainer" class="row"></div>
-            </div>
-        </section>
-        <!-- Room Reservation-->
-        <section class="page-section bg-light" id="reservation">
-            <div class="container">
-                <div class="text-center">
-                    <h2 class="section-heading text-uppercase">會議室預約</h2>
-                    <h3 class="section-subheading text-muted">選擇合適的會議室並進行預約</h3>
-                </div>
-                <div class="row">
-                    <div class="col-lg-12">
-                        <div class="reservation-form">
-                            <form id="reservationForm">
-                                <div class="row align-items-stretch mb-5">
-                                    <div class="col-md-4">
-                                        <select class="form-select" id="location">
-                                            <option value="" disabled selected>地點</option>
-                                            <option value="臺南市">臺南市</option>
-                                            <option value="高雄市">高雄市</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-4" id="calendarBlock">
-                                        <input type="text" class="form-control" id="calendarInput" placeholder="時間" data-bs-toggle="modal" href="#time" readonly>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <input type="text" class="form-control" id="participantsInput" placeholder="人數" data-bs-toggle="modal" href="#participants" readonly>
-                                    </div>
-                                </div>
-                                <div class="text-center">
-                                    <button class="btn btn-primary btn-xl text-uppercase" id="searchButton" type="button"  data-bs-toggle="modal" href="#portfolio-search">搜尋</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <!-- Equipment Reservation -->
-        <section class="page-section bg-light" id="reservation">
-            <div class="container">
-                <div class="text-center">
-                    <h2 class="section-heading text-uppercase">設備預約</h2>
-                    <!-- <h3 class="section-subheading text-muted">選擇合適的會議室並進行預約</h3> -->
-                </div>
-                <div class="row">
-                    <div class="col-lg-12">
-                        <div class="reservation-form">
-                            <form id="reservationForm">
-                                <div class="row align-items-stretch mb-5">
-                                    <div class="col-md-6">
-                                        <select class="form-select" id="location">
-                                            <option value="" disabled selected>設備</option>
-                                            <option value="麥克風">麥克風</option>
-                                            <option value="白板筆">白板筆</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-6" id="calendarBlock">
-                                        <input type="text" class="form-control" id="equipTimeInput" placeholder="時間" data-bs-toggle="modal" href="#time-equipment" readonly>
-                                    </div>
-                                </div>
-                                <div class="text-center">
-                                    <button class="btn btn-primary btn-xl text-uppercase" id="searchButton" type="button"  data-bs-toggle="modal" href="#portfolio-equip-search">搜尋</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <div class="modal modal-lg fade" id="time" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="close-modal" data-bs-dismiss="modal"><img src="assets/img/close-icon.svg" alt="Close modal" /></div>
-                    <div class="container">
-                        <div class="row justify-content-center">
-                            <div class="col-lg-8">
-                                <div class="modal-body">
-                                    <!-- Project details-->
-                                    <div class="row align-items-center mb-3">
-                                        <div class="col-md-4 label-column">
-                                            <label for="date">日期:</label>
-                                        </div>
-                                        <div class="col-md-8">
-                                            <input type="date" list="dates" class="form-control text-center" id="select-date">
-                                            <datalist id="dates"></datalist>
-                                        </div>
-                                    </div>
-                                    <div class="row align-items-center mb-3">
-                                        <div class="col-md-4 label-column">
-                                            <label for="startTime">開始時間:</label>
-                                        </div>
-                                        <div class="col-md-8">
-                                            <select class="custom-form-select text-center flatpickr" id="startTime"></select>
-                                        </div>
-                                    </div>
-                                    <div class="row align-items-center mb-4">
-                                        <div class="col-md-4 label-column">
-                                            <label for="endTime">結束時間:</label>
-                                        </div>
-                                        <div class="col-md-8">
-                                            <select class="custom-form-select text-center flatpickr" id="endTime"></select>
-                                        </div>
-                                    </div>
-                                    <div class="text-center mb-3">
-                                        <button class="btn btn-primary btn-xl text-uppercase" data-bs-dismiss="modal" id="time-confirm">確認</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="modal modal-xl fade" id="participants" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="close-modal" data-bs-dismiss="modal"><img src="assets/img/close-icon.svg" alt="Close modal" /></div>
-                    <div class="container">
-                        <div class="row justify-content-center">
-                            <div class="col-lg-8">
-                                <div class="modal-body">
-                                    <!-- Project details-->
-                                    <div id="slider" class="mb-1"></div>
-                                    <div class="range-values">
-                                        <input type="number" id="minValue" class="ms-5">
-                                        <span class="mt-2"> - </span>
-                                        <input type="number" id="maxValue" class="me-5">
-                                    </div>
-                                    <div class="text-center mt-3">
-                                        <button class="btn btn-primary btn-xl text-uppercase" data-bs-dismiss="modal" id="participants-confirm">確認</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="modal modal-lg fade" id="time-equipment" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="close-modal" data-bs-dismiss="modal"><img src="assets/img/close-icon.svg" alt="Close modal" /></div>
-                    <div class="container">
-                        <div class="row justify-content-center">
-                            <div class="col-lg-8">
-                                <div class="modal-body">
-                                    <!-- Project details-->
-                                    <div class="row align-items-center mb-3">
-                                        <div class="col-md-4 label-column">
-                                            <label for="date-equipment">日期:</label>
-                                        </div>
-                                        <div class="col-md-8">
-                                            <input type="date" list="dates" class="form-control text-center" id="select-date-equipment">
-                                            <datalist id="dates-equipment"></datalist>
-                                        </div>
-                                    </div>
-                                    <div class="row align-items-center mb-3">
-                                        <div class="col-md-4 label-column">
-                                            <label for="startTime-equipment">開始時間:</label>
-                                        </div>
-                                        <div class="col-md-8">
-                                            <select class="custom-form-select text-center flatpickr" id="startTime-equipment"></select>
-                                        </div>
-                                    </div>
-                                    <div class="row align-items-center mb-4">
-                                        <div class="col-md-4 label-column">
-                                            <label for="endTime-equipment">結束時間:</label>
-                                        </div>
-                                        <div class="col-md-8">
-                                            <select class="custom-form-select text-center flatpickr" id="endTime-equipment"></select>
-                                        </div>
-                                    </div>
-                                    <div class="text-center mb-3">
-                                        <button class="btn btn-primary btn-xl text-uppercase" data-bs-dismiss="modal" id="time-confirm-equipment">確認</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    
-        <div class="modal fade" id="portfolio-search" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog modal-fullscreen modal-dialog-scrollable">
-                <div class="modal-content">
-                    <!-- <div class="close-modal" data-bs-dismiss="modal">
-                        <img src="assets/img/close-icon.svg" alt="Close modal" />
-                    </div> -->
-                    <div class="modal-header text-center">
-                        <h5 class="modal-title text-center" id="searchResultsLabel">搜尋結果</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <!-- Project details-->
-                        <div id="reservation-roomContainer" class="row"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="modal fade" id="portfolio-equip-search" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog modal-fullscreen modal-dialog-scrollable">
-                <div class="modal-content">
-                    <!-- <div class="close-modal" data-bs-dismiss="modal">
-                        <img src="assets/img/close-icon.svg" alt="Close modal" />
-                    </div> -->
-                    <div class="modal-header text-center">
-                        <h5 class="modal-title text-center">搜尋結果</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <!-- Project details-->
-                        <div id="reservation-equipContainer" class="row"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
         <!-- My reservation-->
-        <section class="page-section" id="my_reservation">
+        <section class="page-section" id="myRoomReservation">
             <div class="container">
                 <div class="text-center">
                     <h2 class="section-heading text-uppercase">我的預定-會議室</h2>
@@ -346,6 +82,9 @@
                     </tbody>
                 </table>
                 <div id="pagination" class="text-center  mb-6"></div>
+        </section>
+        <section class="page-section" id="myEquipReservation">
+            <div class="container">
                 <div class="text-center">
                     <h2 class="section-heading text-uppercase">我的預定-設備</h2>
                 </div>
@@ -375,6 +114,7 @@
                 </table>
                 <div id="pagination-equip" class="text-center"></div>
             </div>
+        </div>
         </section>
         <!-- Footer-->
         <footer class="footer py-4">
