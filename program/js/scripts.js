@@ -54,15 +54,6 @@ window.addEventListener('DOMContentLoaded', event => {
         });
     });
 
-    checkLoginStatus();
-    document.getElementById('checkInBtn').hidden = false;
-    loginEvent();
-
-    // if(window.location.pathname.endsWith('index.html')) {
-    //     checkLoginStatus();
-    //     document.getElementById('checkInBtn').hidden = false;
-    //     loginEvent();
-    // }
 });
 
 // document.addEventListener('DOMContentLoaded', function() {
@@ -71,6 +62,31 @@ window.addEventListener('DOMContentLoaded', event => {
         
 //     }
 // });
+
+$(document).ready(function() {
+    if (document.body.classList.contains('index')) {
+        checkLoginStatus();
+        document.getElementById('checkInBtn').hidden = false;
+        loginEvent();
+        setInterval(loadReservation, 1000);
+        checkInBlock();
+        verificationSend();
+        emailBlock();
+        signUpBlock();
+        resetPasswordBlcok();
+        dateDisable();
+    }
+
+    if (document.body.classList.contains('reservationTable')) {
+        roomTable();
+        equipTable();
+    }
+
+    if (document.body.classList.contains('reservationPage')) {
+        startTimeAndEndTime();
+        equipStartTimeAndEndTime();
+    }
+});
 
 
 function checkLoginStatus() {
@@ -100,26 +116,20 @@ function checkLoginStatus() {
     }
 }
 
-// Handle login
 function login(event) {
     event.preventDefault();
-    // Simulate login success
     localStorage.setItem('loggedIn', true);
 
-    // Hide login modal
     var loginModal = document.getElementById('login_page');
     var modalInstance = bootstrap.Modal.getInstance(loginModal);
     modalInstance.hide();
 
-    // Update login status
     checkLoginStatus();
 }
 
-// Handle logout
 function logout() {
     localStorage.removeItem('loggedIn');
     checkLoginStatus();
-    // window.onload = checkLoginStatus();
 }
 
 
@@ -181,7 +191,7 @@ function loginEvent() {
 let reservationInfo = {};
 
 // 顯示下一個預約和打卡按鈕
-$(document).ready(function() {
+// $(document).ready(function() {
     function loadReservation()  {
         $.ajax({
             url: "http://localhost:3000/room-reservation",
@@ -256,11 +266,8 @@ $(document).ready(function() {
         });
     }
 
-    loadReservation();
-
-    // setInterval(loadReservation, 1000);
-});
-$(document).ready(function() {
+// });
+function checkInBlock() {
     document.getElementById('checkInBtn').hidden = false;
     $('#checkInBtn').on('click', function(event) {
         document.getElementById('checkInBtn').hidden = true;
@@ -291,10 +298,10 @@ $(document).ready(function() {
             }
         });
     })
-});
+}
 
 // 讀取json檔案的會議室預約紀錄
-$(document).ready(function() {
+function roomTable() {
     const rowsPerPage = 5;
     let currentPage = 1;
     let reservations = [];
@@ -361,7 +368,6 @@ $(document).ready(function() {
                 <button class="pageBtn btn ${i === currentPage ? 'btn-primary' : 'btn-secondary'}" onclick="changePage(${i})" hidden>${i}</button>
             `);
         }
-        checkLoginStatus();
     }
 
     window.changePage = function(page) {
@@ -404,10 +410,10 @@ $(document).ready(function() {
     }
 
     roomTable();
-});
+}
 
 // 讀取json檔案的設備預約紀錄
-$(document).ready(function() {
+function equipTable() {
     const rowsPerPage = 5;
     let currentPage = 1;
     let reservations = [];
@@ -475,7 +481,6 @@ $(document).ready(function() {
                 <button class="pageBtn btn ${i === currentPage ? 'btn-primary' : 'btn-secondary'}" onclick="changePage_equip(${i})" hidden>${i}</button>
             `);
         }
-        checkLoginStatus();
     }
 
     window.changePage_equip = function(page) {
@@ -527,10 +532,10 @@ $(document).ready(function() {
     }
 
     equipTable();
-});
+}
 
 // 判斷email是否存在
-$(document).ready(function() {
+function emailBlock() {
     $('#sendEmailButton').on('click', function(event) {
         event.preventDefault(); // Prevent the default form submission
 
@@ -578,14 +583,14 @@ $(document).ready(function() {
             }
         });
     });
-});
+}
 
 // 讓alert消失
-$(document).ready(function() {
+function verificationSend() {
     $('#verification-code').on('focus', function() {
         $('#alertContainer-sendSuccess').html('<div class="alert alert-success">重設密碼的連結已發送到您的郵箱</div>');
     });
-});
+}
 
 let storedVerificationCode = null;
 
@@ -611,7 +616,7 @@ function sendEmail() {
 }
 
 // 註冊
-$(document).ready(function() {
+function signUpBlock() {
     $('#signUpForm').on('submit', function(event) {
         event.preventDefault();
 
@@ -648,10 +653,10 @@ $(document).ready(function() {
             }
         });
     });
-});
+}
 
 // 重設密碼
-$(document).ready(function() {
+function resetPasswordBlcok() {
     $('#resetPasswordForm').on('submit', function(event) {
         event.preventDefault();
 
@@ -684,17 +689,17 @@ $(document).ready(function() {
             }
         });
     });
-});
+}
 
 // 今天的日期以前不可選
-document.addEventListener('DOMContentLoaded', function() {
+function dateDisable() {
     var today = new Date().toISOString().split('T')[0];
     document.getElementById('select-date').setAttribute('min', today);
     document.getElementById('select-date-equipment').setAttribute('min', today);
-});
+}
 
 // 會議室搜尋開始時間和結束時間的選項
-document.addEventListener('DOMContentLoaded', function() {
+function startTimeAndEndTime() {
     var now = new Date();
     var dateInput = document.getElementById('select-date');
 
@@ -771,10 +776,10 @@ document.addEventListener('DOMContentLoaded', function() {
         
         calendarInput.placeholder = formattedDate + ' ' + startTime + ' - ' + endTime;
     });
-});
+}
 
 // 顯示slider
-document.addEventListener('DOMContentLoaded', function() {
+function sliderBlock() {
     var slider = document.getElementById('slider');
     noUiSlider.create(slider, {
         start: [1, 60],
@@ -811,10 +816,10 @@ document.addEventListener('DOMContentLoaded', function() {
         var participantsInput = document.getElementById('participantsInput');
         participantsInput.placeholder = minValue.value + ' - ' + maxValue.value + ' 人';
     });
-});
+}
 
 // 設備搜尋開始時間和結束時間的選項
-document.addEventListener('DOMContentLoaded', function() {
+function equipStartTimeAndEndTime() {
     var now = new Date();
     var dateInput = document.getElementById('select-date-equipment');
 
@@ -891,7 +896,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         calendarInput.placeholder = formattedDate + ' ' + startTime + ' - ' + endTime;
     });
-});
+}
 
 // 會議室預約頁面
 $(document).ready(function() {
