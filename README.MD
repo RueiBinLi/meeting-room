@@ -4,7 +4,7 @@
 
 Step1.  
 
-去https://nodejs.org下載windows版本  
+去https://nodejs.org 下載windows版本  
 
 Step2.  
 
