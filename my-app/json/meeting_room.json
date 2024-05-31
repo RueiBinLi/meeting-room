@@ -64,5 +64,38 @@
         "amount": 8,
         "openTime": "07:00",
         "closeTime": "21:00"
+    },
+    {
+        "name": "會議室7",
+        "city": "高雄市",
+        "address": "高雄市中西區友愛街3號1樓-106房",
+        "status": "使用中",
+        "img": "../assets/img/meeting_room/6.jpg",
+        "description": "會議室7位於臺南市中西區友愛街3號1樓-106房，提供最多10人的會議空間，設備齊全，歡迎預約使用。",
+        "amount": 10,
+        "openTime": "08:00",
+        "closeTime": "20:00"
+    },
+    {
+        "name": "會議室8",
+        "city": "高雄市",
+        "address": "高雄市中西區友愛街3號1樓-109房",
+        "status": "未使用",
+        "img": "../assets/img/meeting_room/6.jpg",
+        "description": "會議室8位於臺南市中西區友愛街3號1樓-109房，提供最多6人的會議空間，設備齊全，歡迎預約使用。",
+        "amount": 6,
+        "openTime": "09:00",
+        "closeTime": "18:00"
+    },
+    {
+        "name": "會議室9",
+        "city": "高雄市",
+        "address": "高雄市中西區友愛街3號1樓-110房",
+        "status": "未使用",
+        "img": "../assets/img/meeting_room/6.jpg",
+        "description": "會議室9位於臺南市中西區友愛街3號1樓-110房，提供最多8人的會議空間，設備齊全，",
+        "amount": 6,
+        "openTime": "09:00",
+        "closeTime": "18:00"
     }
 ]

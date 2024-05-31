@@ -66,6 +66,7 @@ window.addEventListener('DOMContentLoaded', event => {
 $(document).ready(function() {
     if (document.body.classList.contains('index')) {
         checkLoginStatus();
+        needLogin();
         document.getElementById('checkInBtn').hidden = false;
         loginEvent();
         setInterval(loadReservation, 1000);
@@ -75,19 +76,40 @@ $(document).ready(function() {
         signUpBlock();
         resetPasswordBlcok();
         dateDisable();
+        setInterval(roomContainer,1000);
+        setInterval(equipContainer,1000);
+        setInterval(moreRoomContainer,1000);
+        setInterval(moreEquipContainer,1000);
+        // reservate_room();
     }
 
     if (document.body.classList.contains('reservationTable')) {
-        roomTable();
-        equipTable();
+        displayRoomTable();
+        displayEquipTable();
     }
 
     if (document.body.classList.contains('reservationPage')) {
         startTimeAndEndTime();
         equipStartTimeAndEndTime();
+        sliderBlock();
+        dateDisable();
+        setInterval(reservationRoomContainer,1000);
+        setInterval(reservationEquipContainer,1000);
     }
 });
 
+function needLogin() {
+    document.querySelectorAll('.needLogin').forEach(function(link) {
+        link.addEventListener('click', function(event) {
+            const loggedIn = localStorage.getItem('loggedIn');
+            console.log('loggedIn:', loggedIn);
+            if (!loggedIn) {
+                event.preventDefault(); // 阻止鏈接的默認行為
+                alert("請先登入");
+            }
+        });
+    });
+}
 
 function checkLoginStatus() {
     const loggedIn = localStorage.getItem('loggedIn');
@@ -132,6 +154,9 @@ function logout() {
     checkLoginStatus();
 }
 
+function displayTable() {
+
+}
 
 function loginEvent() {
     $('#logInButton').on('click', function(event) {
@@ -191,82 +216,80 @@ function loginEvent() {
 let reservationInfo = {};
 
 // 顯示下一個預約和打卡按鈕
-// $(document).ready(function() {
-    function loadReservation()  {
-        $.ajax({
-            url: "http://localhost:3000/room-reservation",
-            dataType: 'json',
-            success: function(data) {
-                data.sort((a, b) => {
-                    const dateA = new Date(a.date + ' ' + a.startTime);
-                    const dateB = new Date(b.date + ' ' + b.startTime);
-                    return dateA - dateB;
-                });
+function loadReservation()  {
+    $.ajax({
+        url: "http://localhost:3000/room-reservation",
+        dataType: 'json',
+        success: function(data) {
+            data.sort((a, b) => {
+                const dateA = new Date(a.date + ' ' + a.startTime);
+                const dateB = new Date(b.date + ' ' + b.startTime);
+                return dateA - dateB;
+            });
 
-                const now = new Date();
+            const now = new Date();
 
-                // data.forEach(reservation => {
-                //     const start = new Date(reservation.date + ' ' + reservation.startTime);
-                //     const end = new Date(reservation.date + ' ' + reservation.endTime);
-                //     if(now >= start && now <= end) {
-                        
-                //     }
-                // });
+            // data.forEach(reservation => {
+            //     const start = new Date(reservation.date + ' ' + reservation.startTime);
+            //     const end = new Date(reservation.date + ' ' + reservation.endTime);
+            //     if(now >= start && now <= end) {
+                    
+            //     }
+            // });
 
-                let nextReservationBody = '';
-                nextReservationBody += `<p class="text-black">下一個預約:</p>`;
-                if (data.length > 0) {
-                    for (const reservation of data) {
-                        const start = new Date(reservation.date + ' ' + reservation.startTime);
-                        const end = new Date(reservation.date + ' ' + reservation.endTime);
-                        // console.log('Next reservation:', reservation);
-                        if(now < end && reservation.status === '尚未結束') {
-                            nextReservationBody += `
-                                <p class="text-black text fs-5">會議室: ${reservation.name}</p>
-                                <p class="text-black text fs-5">日期: ${reservation.date}</p>
-                                <p class="text-black text fs-5">開始時間: ${reservation.startTime} 結束時間: ${reservation.endTime}</p>
-                            `;
-                            reservationInfo = {
-                                name: reservation.name,
-                                date: reservation.date,
-                                startTime: reservation.startTime,
-                                endTime: reservation.endTime
-                            };
-                            break;
-                        }
+            let nextReservationBody = '';
+            nextReservationBody += `<p class="text-black">下一個預約:</p>`;
+            if (data.length > 0) {
+                for (const reservation of data) {
+                    const start = new Date(reservation.date + ' ' + reservation.startTime);
+                    const end = new Date(reservation.date + ' ' + reservation.endTime);
+                    // console.log('Next reservation:', reservation);
+                    if(now < end && reservation.status === '尚未結束') {
+                        nextReservationBody += `
+                            <p class="text-black text fs-5">會議室: ${reservation.name}</p>
+                            <p class="text-black text fs-5">日期: ${reservation.date}</p>
+                            <p class="text-black text fs-5">開始時間: ${reservation.startTime} 結束時間: ${reservation.endTime}</p>
+                        `;
+                        reservationInfo = {
+                            name: reservation.name,
+                            date: reservation.date,
+                            startTime: reservation.startTime,
+                            endTime: reservation.endTime
+                        };
+                        break;
                     }
                 }
-
-                if (nextReservationBody === '<p class="text-black">下一個預約:</p>') {
-                    nextReservationBody += '<p class="text-black text fs-5">沒有預約</p>';
-                    document.getElementById('checkInBtn').hidden = true;
-                    document.getElementById('checkOutBtn').hidden = true;
-                    document.getElementById('notOpenBtn').hidden = false;
-                }
-
-                $('#next-reservation').html(nextReservationBody);
-
-                // const nextReservation = data.find(reservation => {
-                //     const start = new Date(reservation.date + ' ' + reservation.startTime);
-                //     const end = new Date(reservation.date + ' ' + reservation.endTime);
-                //     return now >= start && now <= end;
-                // });
-    
-                // if (nextReservation) {
-                //     document.getElementById('checkInBtn').hidden = false;
-                //     document.getElementById('notOpenBtn').hidden = true;
-                // } else {
-                //     document.getElementById('checkInBtn').hidden = true;
-                //     document.getElementById('notOpenBtn').hidden = false;
-                // }
-            },
-            error: function(error) {
-                console.error('Error loading JSON data', error);
             }
-        });
-    }
 
-// });
+            if (nextReservationBody === '<p class="text-black">下一個預約:</p>') {
+                nextReservationBody += '<p class="text-black text fs-5">沒有預約</p>';
+                document.getElementById('checkInBtn').hidden = true;
+                document.getElementById('checkOutBtn').hidden = true;
+                document.getElementById('notOpenBtn').hidden = false;
+            }
+
+            $('#next-reservation').html(nextReservationBody);
+
+            // const nextReservation = data.find(reservation => {
+            //     const start = new Date(reservation.date + ' ' + reservation.startTime);
+            //     const end = new Date(reservation.date + ' ' + reservation.endTime);
+            //     return now >= start && now <= end;
+            // });
+
+            // if (nextReservation) {
+            //     document.getElementById('checkInBtn').hidden = false;
+            //     document.getElementById('notOpenBtn').hidden = true;
+            // } else {
+            //     document.getElementById('checkInBtn').hidden = true;
+            //     document.getElementById('notOpenBtn').hidden = false;
+            // }
+        },
+        error: function(error) {
+            console.error('Error loading JSON data', error);
+        }
+    });
+}
+
 function checkInBlock() {
     document.getElementById('checkInBtn').hidden = false;
     $('#checkInBtn').on('click', function(event) {
@@ -301,7 +324,7 @@ function checkInBlock() {
 }
 
 // 讀取json檔案的會議室預約紀錄
-function roomTable() {
+function displayRoomTable() {
     const rowsPerPage = 5;
     let currentPage = 1;
     let reservations = [];
@@ -365,7 +388,7 @@ function roomTable() {
 
         for (let i = 1; i <= totalPages; i++) {
             pagination.append(`
-                <button class="pageBtn btn ${i === currentPage ? 'btn-primary' : 'btn-secondary'}" onclick="changePage(${i})" hidden>${i}</button>
+                <button class="pageBtn btn ${i === currentPage ? 'btn-primary' : 'btn-secondary'}" onclick="changePage(${i})">${i}</button>
             `);
         }
     }
@@ -413,7 +436,7 @@ function roomTable() {
 }
 
 // 讀取json檔案的設備預約紀錄
-function equipTable() {
+function displayEquipTable() {
     const rowsPerPage = 5;
     let currentPage = 1;
     let reservations = [];
@@ -478,7 +501,7 @@ function equipTable() {
 
         for (let i = 1; i <= totalPages; i++) {
             pagination.append(`
-                <button class="pageBtn btn ${i === currentPage ? 'btn-primary' : 'btn-secondary'}" onclick="changePage_equip(${i})" hidden>${i}</button>
+                <button class="pageBtn btn ${i === currentPage ? 'btn-primary' : 'btn-secondary'}" onclick="changePage_equip(${i})">${i}</button>
             `);
         }
     }
@@ -898,134 +921,192 @@ function equipStartTimeAndEndTime() {
     });
 }
 
-// 會議室預約頁面
-$(document).ready(function() {
-    function addOptions(hourStart, minuteStart, selectElement) {
-        for (var hour = hourStart; hour < 24; hour++) {
-            for (var minute = minuteStart; minute < 60; minute += 30) {
-                var option = document.createElement("option");
-                option.text = ('0' + hour).slice(-2) + ":" + ('0' + minute).slice(-2);
-                option.value = ('0' + hour).slice(-2) + ":" + ('0' + minute).slice(-2);
-                selectElement.add(option);
-            }
-            minuteStart = 0;
+function addOptions(hourStart, minuteStart, selectElement) {
+    for (var hour = hourStart; hour < 24; hour++) {
+        for (var minute = minuteStart; minute < 60; minute += 30) {
+            var option = document.createElement("option");
+            option.text = ('0' + hour).slice(-2) + ":" + ('0' + minute).slice(-2);
+            option.value = ('0' + hour).slice(-2) + ":" + ('0' + minute).slice(-2);
+            selectElement.add(option);
         }
+        minuteStart = 0;
     }
+}
 
-    function initializeDateTimePicker(selectDate, startTime, endTime) {
-        var now = new Date();
-        var dateInputSearch = document.getElementById(selectDate);
-        if (!dateInputSearch) return;
+function initializeDateTimePicker(selectDate, startTime, endTime) {
+    var now = new Date();
+    var dateInputSearch = document.getElementById(selectDate);
+    if (!dateInputSearch) return;
 
-        // 預約會議室頁面的今天日期已前不可選
-        var today = new Date().toISOString().split('T')[0];
-        dateInputSearch.setAttribute('min', today);
+    // 預約會議室頁面的今天日期已前不可選
+    var today = new Date().toISOString().split('T')[0];
+    dateInputSearch.setAttribute('min', today);
 
-        dateInputSearch.addEventListener('change', function() {
-            var selectedDateSearch = new Date(dateInputSearch.value);
-            var selectStartTimeSearch = document.getElementById(startTime);
+    dateInputSearch.addEventListener('change', function() {
+        var selectedDateSearch = new Date(dateInputSearch.value);
+        var selectStartTimeSearch = document.getElementById(startTime);
+        var selectEndTimeSearch = document.getElementById(endTime);
+
+        selectStartTimeSearch.innerHTML = '';
+        selectEndTimeSearch.innerHTML = '';
+
+        if (selectedDateSearch.toISOString().split('T')[0] === now.toISOString().split('T')[0]) {
+            addOptions(now.getHours(), now.getMinutes() > 30 ? 0 : 30, selectStartTimeSearch);
+            addOptions(now.getHours(), now.getMinutes() > 30 ? 0 : 30, selectEndTimeSearch);
+        } else {
+            addOptions(0, 0, selectStartTimeSearch);
+            addOptions(0, 0, selectEndTimeSearch);
+        }
+    });
+
+    var startTimeSearch = document.getElementById(startTime);
+    if (startTimeSearch) {
+        startTimeSearch.addEventListener('change', function() {
             var selectEndTimeSearch = document.getElementById(endTime);
-
-            selectStartTimeSearch.innerHTML = '';
             selectEndTimeSearch.innerHTML = '';
+            var startTimeValue = startTimeSearch.value;
+            var [startHour, startMinute] = startTimeValue.split(':').map(Number);
 
-            if (selectedDateSearch.toISOString().split('T')[0] === now.toISOString().split('T')[0]) {
-                addOptions(now.getHours(), now.getMinutes() > 30 ? 0 : 30, selectStartTimeSearch);
-                addOptions(now.getHours(), now.getMinutes() > 30 ? 0 : 30, selectEndTimeSearch);
+            if (startMinute === 30) {
+                startHour += 1;
+                startMinute = 0;
             } else {
-                addOptions(0, 0, selectStartTimeSearch);
-                addOptions(0, 0, selectEndTimeSearch);
+                startMinute = 30;
             }
-        });
-
-        var startTimeSearch = document.getElementById(startTime);
-        if (startTimeSearch) {
-            startTimeSearch.addEventListener('change', function() {
-                var selectEndTimeSearch = document.getElementById(endTime);
-                selectEndTimeSearch.innerHTML = '';
-                var startTimeValue = startTimeSearch.value;
-                var [startHour, startMinute] = startTimeValue.split(':').map(Number);
-
-                if (startMinute === 30) {
-                    startHour += 1;
-                    startMinute = 0;
-                } else {
-                    startMinute = 30;
-                }
-                addOptions(startHour, startMinute, selectEndTimeSearch);
-            });
-        }
-    }
-
-    function handleRoomClick(event) {
-        event.preventDefault();
-        const roomName = event.currentTarget.getAttribute('data-room-name');
-
-        $.ajax({
-            url: "http://localhost:3000/meeting-room",
-            dataType: 'json',
-            success: function(data) {
-                let roomBody = '';
-                let roomBodyForStatus = '';
-                const room = data.find(room => room.name == roomName);
-                if (room) {
-                    roomBody += `
-                        <h2 class="text-uppercase">${room.name}</h2>
-                        <p class="item-intro text-muted">地點: ${room.address}</p>
-                        <img class="img-fluid d-block mx-auto" src="${room.img}" alt="..." />
-                        <p class="item-intro fs-4">介紹: ${room.description}</p>
-                        <div class="row align-items-center mb-4">
-                            <div class="col-md-4 label-column">
-                                <div class="text-center"><label for="select-date-search">日期:</label></div>
-                                <input type="date" list="dates" class="form-control text-center" id="select-date-search">
-                                <datalist id="dates"></datalist>
-                            </div>
-                            <div class="col-md-4 label-column">
-                            <div class="text-center"><label for="startTimeSearch">開始時間:</label></div>
-                                <select class="custom-form-select text-center flatpickr" id="startTimeSearch"></select>
-                            </div>
-                            <div class="col-md-4 label-column">
-                            <div class="text-center"><label for="endTimeSearch">結束時間:</label></div>
-                                <select class="custom-form-select text-center flatpickr" id="endTimeSearch"></select>
-                            </div>
-                        </div>
-                    `;
-                    roomBodyForStatus += `
-                        <h2 class="text-uppercase">${room.name}</h2>
-                        <p class="item-intro text-muted">地點: ${room.address}</p>
-                        <img class="img-fluid d-block mx-auto" src="${room.img}" alt="..." />
-                        <p class="item-intro fs-4">介紹: ${room.description}</p>
-                        <div class="row align-items-center mb-4">
-                            <div class="col-md-4 label-column">
-                                <div class="text-center"><label for="select-date-search-forStatus">日期:</label></div>
-                                <input type="date" list="dates" class="form-control text-center" id="select-date-search-forStatus">
-                                <datalist id="dates"></datalist>
-                            </div>
-                            <div class="col-md-4 label-column">
-                            <div class="text-center"><label for="startTimeSearch-forStatus">開始時間:</label></div>
-                                <select class="custom-form-select text-center flatpickr" id="startTimeSearch-forStatus"></select>
-                            </div>
-                            <div class="col-md-4 label-column">
-                            <div class="text-center"><label for="endTimeSearch-forStatus">結束時間:</label></div>
-                                <select class="custom-form-select text-center flatpickr" id="endTimeSearch-forStatus"></select>
-                            </div>
-                        </div> 
-                    `;
-                }
-                $('#reservate-roomContainer').html(roomBody);
-                $('#reservate-roomContainer-forStatus').html(roomBodyForStatus);
-                initializeDateTimePicker('select-date-search', 'startTimeSearch', 'endTimeSearch');
-                initializeDateTimePicker('select-date-search-forStatus', 'startTimeSearch-forStatus', 'endTimeSearch-forStatus');
-            },
-            error: function(error) {
-                console.error('Error loading JSON data', error);
-            }
+            addOptions(startHour, startMinute, selectEndTimeSearch);
         });
     }
+}
+
+// 會議室預約頁面
+function handleRoomClick(event) {
+    event.preventDefault();
+    const roomName = event.currentTarget.getAttribute('data-room-name');
 
     $.ajax({
         url: "http://localhost:3000/meeting-room",
         dataType: 'json',
+        success: function(data) {
+            let roomBody = '';
+            let roomBodyForStatus = '';
+            let moreRoomBodyForStatus = '';
+            const room = data.find(room => room.name == roomName);
+            if (room) {
+                roomBody += `
+                    <h2 class="text-uppercase">${room.name}</h2>
+                    <p class="item-intro text-muted">地點: ${room.address}</p>
+                    <img class="img-fluid d-block mx-auto" src="${room.img}" alt="..." />
+                    <p class="item-intro fs-4">介紹: ${room.description}</p>
+                    <div class="row align-items-center mb-4">
+                        <div class="col-md-4 label-column">
+                            <div class="text-center"><label for="select-date-search">日期:</label></div>
+                            <input type="date" list="dates" class="form-control text-center" id="select-date-search">
+                            <datalist id="dates"></datalist>
+                        </div>
+                        <div class="col-md-4 label-column">
+                        <div class="text-center"><label for="startTimeSearch">開始時間:</label></div>
+                            <select class="custom-form-select text-center flatpickr" id="startTimeSearch"></select>
+                        </div>
+                        <div class="col-md-4 label-column">
+                        <div class="text-center"><label for="endTimeSearch">結束時間:</label></div>
+                            <select class="custom-form-select text-center flatpickr" id="endTimeSearch"></select>
+                        </div>
+                    </div>
+                `;
+                roomBodyForStatus += `
+                    <h2 class="text-uppercase">${room.name}</h2>
+                    <p class="item-intro text-muted">地點: ${room.address}</p>
+                    <img class="img-fluid d-block mx-auto" src="${room.img}" alt="..." />
+                    <p class="item-intro fs-4">介紹: ${room.description}</p>
+                    <div class="row align-items-center mb-4">
+                        <div class="col-md-4 label-column">
+                            <div class="text-center"><label for="select-date-search-forStatus">日期:</label></div>
+                            <input type="date" list="dates" class="form-control text-center" id="select-date-search-forStatus">
+                            <datalist id="dates"></datalist>
+                        </div>
+                        <div class="col-md-4 label-column">
+                        <div class="text-center"><label for="startTimeSearch-forStatus">開始時間:</label></div>
+                            <select class="custom-form-select text-center flatpickr" id="startTimeSearch-forStatus"></select>
+                        </div>
+                        <div class="col-md-4 label-column">
+                        <div class="text-center"><label for="endTimeSearch-forStatus">結束時間:</label></div>
+                            <select class="custom-form-select text-center flatpickr" id="endTimeSearch-forStatus"></select>
+                        </div>
+                    </div> 
+                `;
+                moreRoomBodyForStatus += `
+                    <h2 class="text-uppercase">${room.name}</h2>
+                    <p class="item-intro text-muted">地點: ${room.address}</p>
+                    <img class="img-fluid d-block mx-auto" src="${room.img}" alt="..." />
+                    <p class="item-intro fs-4">介紹: ${room.description}</p>
+                    <div class="row align-items-center mb-4">
+                        <div class="col-md-4 label-column">
+                            <div class="text-center"><label for="select-date-search-moreRoomforStatus">日期:</label></div>
+                            <input type="date" list="dates" class="form-control text-center" id="select-date-search-moreRoomforStatus">
+                            <datalist id="dates"></datalist>
+                        </div>
+                        <div class="col-md-4 label-column">
+                        <div class="text-center"><label for="startTimeSearch-moreRoomforStatus">開始時間:</label></div>
+                            <select class="custom-form-select text-center flatpickr" id="startTimeSearch-moreRoomforStatus"></select>
+                        </div>
+                        <div class="col-md-4 label-column">
+                        <div class="text-center"><label for="endTimeSearch-moreRoomforStatus">結束時間:</label></div>
+                            <select class="custom-form-select text-center flatpickr" id="endTimeSearch-moreRoomforStatus"></select>
+                        </div>
+                    </div> 
+                `;
+            }
+            $('#reservate-roomContainer').html(roomBody);
+            $('#reservate-roomContainer-forStatus').html(roomBodyForStatus);
+            $('#reservate-moreRoomContainer-forStatus').html(moreRoomBodyForStatus);
+            initializeDateTimePicker('select-date-search', 'startTimeSearch', 'endTimeSearch');
+            initializeDateTimePicker('select-date-search-forStatus', 'startTimeSearch-forStatus', 'endTimeSearch-forStatus');
+            initializeDateTimePicker('select-date-search-moreRoomforStatus', 'startTimeSearch-moreRoomforStatus', 'endTimeSearch-moreRoomforStatus');
+
+            const reservationInfo = {
+                room: roomName,
+            };
+
+            $('#reservateRoom-success').on('click', function(event) {
+                $('#alertContainer-reservateRoom-success').html('<div class="alert alert-success">預約成功</div>');
+                reservateRoomForm(event, reservationInfo, 'select-date-search', 'startTimeSearch', 'endTimeSearch');
+            });
+            $('#reservateRoom-success-forStatus').on('click', function(event) {
+                $('#alertContainer-reservateRoom-success-forStatus').html('<div class="alert alert-success">預約成功</div>');
+                reservateRoomForm(event, reservationInfo, 'select-date-search-forStatus', 'startTimeSearch-forStatus', 'endTimeSearch-forStatus');
+            });
+            $('#reservate-success-moreRoomforStatus').on('click', function(event) {
+                $('#alertContainer-reservateRoom-success-moreRoom-forStatus').html('<div class="alert alert-success">預約成功</div>');
+                reservateRoomForm(event, reservationInfo, 'select-date-search-moreRoomforStatus', 'startTimeSearch-moreRoomforStatus', 'endTimeSearch-moreRoomforStatus');
+            });
+        },
+        error: function(error) {
+            console.error('Error loading JSON data', error);
+        }
+    });
+}
+
+function reservationRoomContainer() {
+    var locationSearchInput = document.getElementById("location").value;
+    var dateSearchInput = document.getElementById("select-date").value;
+    var startTimeSearchInput = document.getElementById("startTime").value;
+    var endTimeSearchInput = document.getElementById("endTime").value;
+    var minValue = document.getElementById('minValue').value;
+    var maxValue = document.getElementById('maxValue').value;
+
+    $.ajax({
+        url: "http://localhost:3000/search-meeting-room",
+        type: 'POST',
+        contentType: 'application/json',
+        dataType: 'json',
+        data: JSON.stringify({ 
+            city: locationSearchInput, 
+            date: dateSearchInput, 
+            startTime: startTimeSearchInput, 
+            endTime: endTimeSearchInput, 
+            min: minValue, 
+            max: maxValue 
+        }),
         success: function(data) {
             let roomBody = '';
             data.forEach(room => {
@@ -1057,10 +1138,64 @@ $(document).ready(function() {
             console.error('Error loading JSON data', error);
         }
     });
+}
+
+function moreRoomContainer() {
+    $.ajax({
+        url: "http://localhost:3000/meeting-room",
+        dataType: 'json',
+        success: function(data) {
+            let roomBody = '';
+            data.forEach(room => {
+                roomBody += `
+                    <div class="col-md-4 col-sm-6 mb-4">
+                        <div class="portfolio-item port">
+                            <a class="more-room-link" data-bs-toggle="modal" href="#reservation-more-room-forStatus" data-room-name="${room.name}">
+                                <div class="portfolio-hover">
+                                    <div class="portfolio-hover-content"><i class="fas fa-plus fa-3x"></i></div>
+                                </div>
+                                <img class="img-fluid-custom" src="${room.img}" alt="..." />
+                            </a>
+                            <div class="portfolio-caption">
+                                <div class="portfolio-caption-heading">${room.name}</div>
+                                <div class="portfolio-caption-subheading text-muted">${room.status}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            $('#more-roomContainer').html(roomBody);
+
+            const moreRoomLinks = document.getElementsByClassName('more-room-link');
+            for (let i = 0; i < moreRoomLinks.length; i++) {
+                moreRoomLinks[i].addEventListener('click', handleRoomClick);
+            }
+        },
+        error: function(error) {
+            console.error('Error loading JSON data', error);
+        }
+    });
+}
+
+function reservationEquipContainer() {
+    var equipmentSearchInput = document.getElementById("equipmentInput").value;
+    var dateSearchInput = document.getElementById("select-date-equipment").value;
+    var startTimeSearchInput = document.getElementById("startTime-equipment").value;
+    var endTimeSearchInput = document.getElementById("endTime-equipment").value;
 
     $.ajax({
-        url: "http://localhost:3000/equipment",
+        url: "http://localhost:3000/search-equipment",
+        type: 'POST',
+        contentType: 'application/json',
         dataType: 'json',
+        data: JSON.stringify({ 
+            name: equipmentSearchInput, 
+            date: dateSearchInput, 
+            startTime: startTimeSearchInput, 
+            endTime: endTimeSearchInput, 
+            min: minValue, 
+            max: maxValue 
+        }),
         success: function(data) {
             let equipBody = '';
             data.forEach(equipment => {
@@ -1081,6 +1216,7 @@ $(document).ready(function() {
                     </div>
                 `;
             });
+            
             $('#reservation-equipContainer').html(equipBody);
 
             const equipLinks = document.getElementsByClassName('portfolio-searchEquip-link');
@@ -1092,77 +1228,174 @@ $(document).ready(function() {
             console.error('Error loading JSON data', error);
         }
     });
+}
 
-    function handleEquipClick(event) {
-        event.preventDefault();
-        const equipName = event.currentTarget.getAttribute('data-equipment-name');
-
-        $.ajax({
-            url: "http://localhost:3000/equipment",
-            dataType: 'json',
-            success: function(data) {
-                let equipBody = '';
-                let equipBodyForStatus = '';
-                const equip = data.find(equip => equip.name == equipName);
-                if (equip) {
-                    equipBody += `
-                        <h2 class="text-uppercase">${equip.name}</h2>
-                        <img class="img-fluid d-block mx-auto" src="${equip.img}" alt="..." />
-                        <div class="row align-items-center mb-4">
-                            <div class="col-md-4 label-column">
-                                <div class="text-center"><label for="select-date-searchEquip">日期:</label></div>
-                                <input type="date" list="dates" class="form-control text-center" id="select-date-searchEquip">
-                                <datalist id="dates"></datalist>
-                            </div>
-                            <div class="col-md-4 label-column">
-                            <div class="text-center"><label for="startTimeSearchEquip">開始時間:</label></div>
-                                <select class="custom-form-select text-center flatpickr" id="startTimeSearchEquip"></select>
-                            </div>
-                            <div class="col-md-4 label-column">
-                            <div class="text-center"><label for="endTimeSearchEquip">結束時間:</label></div>
-                                <select class="custom-form-select text-center flatpickr" id="endTimeSearchEquip"></select>
+function moreEquipContainer() {
+    $.ajax({
+        url: "http://localhost:3000/equipment",
+        dataType: 'json',
+        success: function(data) {
+            let equipBody = '';
+            data.forEach(equipment => {
+                equipBody += `
+                    <div class="col-md-4 col-sm-6 mb-4">
+                        <div class="portfolio-item port">
+                            <a class="more-equip-link" data-bs-toggle="modal" href="#reservation-more-equip-forStatus" data-equipment-name="${equipment.name}">
+                                <div class="portfolio-hover">
+                                    <div class="portfolio-hover-content"><i class="fas fa-plus fa-3x"></i></div>
+                                </div>
+                                <img class="img-fluid" src="${equipment.img}" alt="..." />
+                            </a>
+                            <div class="portfolio-caption">
+                                <div class="portfolio-caption-heading">${equipment.name}</div>
+                                <div class="portfolio-caption-subheading text-muted">${equipment.status}</div>
                             </div>
                         </div>
-                    `;
-                    equipBodyForStatus += `
-                        <h2 class="text-uppercase">${equip.name}</h2>
-                        <img class="img-fluid d-block mx-auto" src="${equip.img}" alt="..." />
-                        <div class="row align-items-center mb-4">
-                            <div class="col-md-4 label-column">
-                                <div class="text-center"><label for="select-date-searchEquip-forStatus">日期:</label></div>
-                                <input type="date" list="dates" class="form-control text-center" id="select-date-searchEquip-forStatus">
-                                <datalist id="dates"></datalist>
-                            </div>
-                            <div class="col-md-4 label-column">
-                            <div class="text-center"><label for="startTimeSearchEquip-forStatus">開始時間:</label></div>
-                                <select class="custom-form-select text-center flatpickr" id="startTimeSearchEquip-forStatus"></select>
-                            </div>
-                            <div class="col-md-4 label-column">
-                            <div class="text-center"><label for="endTimeSearchEquip-forStatus">結束時間:</label></div>
-                                <select class="custom-form-select text-center flatpickr" id="endTimeSearchEquip-forStatus"></select>
-                            </div>
-                        </div>
-                    `;
-                    
-                }
-                $('#reservate-equipContainer').html(equipBody);
-                $('#reservate-equipContainer-forStatus').html(equipBodyForStatus);
-                initializeDateTimePicker('select-date-searchEquip', 'startTimeSearchEquip', 'endTimeSearchEquip');
-                initializeDateTimePicker('select-date-searchEquip-forStatus', 'startTimeSearchEquip-forStatus', 'endTimeSearchEquip-forStatus');
-            },
-            error: function(error) {
-                console.error('Error loading JSON data', error);
+                    </div>
+                `;
+            });
+            
+            $('#more-equipContainer').html(equipBody);
+
+            const moreEquipLinks = document.getElementsByClassName('more-equip-link');
+            for (let i = 0; i < moreEquipLinks.length; i++) {
+                moreEquipLinks[i].addEventListener('click', handleEquipClick);
             }
-        });
+        },
+        error: function(error) {
+            console.error('Error loading JSON data', error);
+        }
+    });
+}
+
+function handleEquipClick(event) {
+    event.preventDefault();
+    const equipName = event.currentTarget.getAttribute('data-equipment-name');
+
+    $.ajax({
+        url: "http://localhost:3000/equipment",
+        dataType: 'json',
+        success: function(data) {
+            let equipBody = '';
+            let equipBodyForStatus = '';
+            let moreEquipBodyForStatus = '';
+            const equip = data.find(equip => equip.name == equipName);
+            if (equip) {
+                equipBody += `
+                    <h2 class="text-uppercase">${equip.name}</h2>
+                    <img class="img-fluid d-block mx-auto" src="${equip.img}" alt="..." />
+                    <div class="row align-items-center mb-4">
+                        <div class="col-md-4 label-column">
+                            <div class="text-center"><label for="select-date-searchEquip">日期:</label></div>
+                            <input type="date" list="dates" class="form-control text-center" id="select-date-searchEquip">
+                            <datalist id="dates"></datalist>
+                        </div>
+                        <div class="col-md-4 label-column">
+                        <div class="text-center"><label for="startTimeSearchEquip">開始時間:</label></div>
+                            <select class="custom-form-select text-center flatpickr" id="startTimeSearchEquip"></select>
+                        </div>
+                        <div class="col-md-4 label-column">
+                        <div class="text-center"><label for="endTimeSearchEquip">結束時間:</label></div>
+                            <select class="custom-form-select text-center flatpickr" id="endTimeSearchEquip"></select>
+                        </div>
+                    </div>
+                `;
+                equipBodyForStatus += `
+                    <h2 class="text-uppercase">${equip.name}</h2>
+                    <img class="img-fluid d-block mx-auto" src="${equip.img}" alt="..." />
+                    <div class="row align-items-center mb-4">
+                        <div class="col-md-4 label-column">
+                            <div class="text-center"><label for="select-date-searchEquip-forStatus">日期:</label></div>
+                            <input type="date" list="dates" class="form-control text-center" id="select-date-searchEquip-forStatus">
+                            <datalist id="dates"></datalist>
+                        </div>
+                        <div class="col-md-4 label-column">
+                        <div class="text-center"><label for="startTimeSearchEquip-forStatus">開始時間:</label></div>
+                            <select class="custom-form-select text-center flatpickr" id="startTimeSearchEquip-forStatus"></select>
+                        </div>
+                        <div class="col-md-4 label-column">
+                        <div class="text-center"><label for="endTimeSearchEquip-forStatus">結束時間:</label></div>
+                            <select class="custom-form-select text-center flatpickr" id="endTimeSearchEquip-forStatus"></select>
+                        </div>
+                    </div>
+                `;
+                moreEquipBodyForStatus += `
+                    <h2 class="text-uppercase">${equip.name}</h2>
+                    <img class="img-fluid d-block mx-auto" src="${equip.img}" alt="..." />
+                    <div class="row align-items-center mb-4">
+                        <div class="col-md-4 label-column">
+                            <div class="text-center"><label for="select-date-moreEquip-forStatus">日期:</label></div>
+                            <input type="date" list="dates" class="form-control text-center" id="select-date-moreEquip-forStatus">
+                            <datalist id="dates"></datalist>
+                        </div>
+                        <div class="col-md-4 label-column">
+                        <div class="text-center"><label for="startTimeMoreEquip-forStatus">開始時間:</label></div>
+                            <select class="custom-form-select text-center flatpickr" id="startTimeMoreEquip-forStatus"></select>
+                        </div>
+                        <div class="col-md-4 label-column">
+                        <div class="text-center"><label for="endTimeMoreEquip-forStatus">結束時間:</label></div>
+                            <select class="custom-form-select text-center flatpickr" id="endTimeMoreEquip-forStatus"></select>
+                        </div>
+                    </div>
+                `;
+                
+            }
+            $('#reservate-equipContainer').html(equipBody);
+            $('#reservate-equipContainer-forStatus').html(equipBodyForStatus);
+            $('#reservate-moreEquipContainer-forStatus').html(moreEquipBodyForStatus);
+            initializeDateTimePicker('select-date-searchEquip', 'startTimeSearchEquip', 'endTimeSearchEquip');
+            initializeDateTimePicker('select-date-searchEquip-forStatus', 'startTimeSearchEquip-forStatus', 'endTimeSearchEquip-forStatus');
+            initializeDateTimePicker('select-date-moreEquip-forStatus', 'startTimeMoreEquip-forStatus', 'endTimeMoreEquip-forStatus');
+            
+            const reservationInfo = {
+                name: equipName,
+            };
+
+            $('#reservateEquip-success').on('click', function(event) {
+                $('#alertContainer-reservateEquip-success').html('<div class="alert alert-success">預約成功</div>');
+                reservateEquipForm(event, reservationInfo, 'select-date-searchEquip', 'startTimeSearchEquip', 'endTimeSearchEquip');
+            });
+            $('#reservateEquip-success-forStatus').on('click', function(event) {
+                $('#alertContainer-reservateEquip-success-forStatus').html('<div class="alert alert-success">預約成功</div>');
+                reservateEquipForm(event, reservationInfo, 'select-date-searchEquip-forStatus', 'startTimeSearchEquip-forStatus', 'endTimeSearchEquip-forStatus');
+            });
+            $('#reservate-success-moreEquipforStatus').on('click', function(event) {
+                $('#alertContainer-reservateRoom-success-moreEquip-forStatus').html('<div class="alert alert-success">預約成功</div>');
+                reservateEquipForm(event, reservationInfo, 'select-date-moreEquip-forStatus', 'startTimeMoreEquip-forStatus', 'endTimeMoreEquip-forStatus');
+            });
+        },
+        error: function(error) {
+            console.error('Error loading JSON data', error);
+        }
+    });
+}
+
+function getRandomNums(data, count) {
+    let rooms = [...data];
+    let selectedRooms = [];
+
+    count = Math.min(count, rooms.length);
+
+    for (let i = 0; i < count; i++) {
+        let randomIndex = Math.floor(Math.random() * rooms.length);
+        selectedRooms.push(rooms.splice(randomIndex, 1)[0]);
     }
 
-    // 讀取json檔案的會議室和設備
+    return selectedRooms;
+}
+
+let selectedRooms = null;
+let selectedEquips = null;
+
+// 讀取json檔案的會議室和設備
+function roomContainer() {
     $.ajax({
         url: "http://localhost:3000/meeting-room",
         dataType: 'json',
         success: function(data) {
             let roomBody = '';
-            data.forEach(room => {
+            if(!selectedRooms) selectedRooms = getRandomNums(data, 6);
+            selectedRooms.forEach(room => {
                 roomBody += `
                     <div class="col-md-4 col-sm-6 mb-4">
                         <div class="portfolio-item">
@@ -1191,12 +1424,15 @@ $(document).ready(function() {
             console.error('Error loading JSON data', error);
         }
     });
+}
 
+function equipContainer() {
     $.ajax({
         url: "http://localhost:3000/equipment",
         dataType: 'json',
         success: function(data) {
             let equipBody = '';
+            if(!selectedEquips) selectedEquips = getRandomNums(data, 6);
             data.forEach(equipment => {
                 equipBody += `
                     <div class="col-md-4 col-sm-6 mb-4">
@@ -1227,9 +1463,10 @@ $(document).ready(function() {
         }
     });
     initializeDateTimePicker();
-});
+}
 
-$(document).ready(function() {       
+
+function reservate_room() {       
     // $('#reservateRoom-success').on('click', function(event) {
     //     event.preventDefault();
     //     $('#alertContainer-reservateRoom-success').html('<div class="alert alert-success">預約成功</div>');
@@ -1247,26 +1484,22 @@ $(document).ready(function() {
 
     // $('#reservateRoom-success-forStatus').off('click').on('click', handleReservation);
 
-    function handleReservation(event, reservationInfo) {
-        event.preventDefault();
-        $('#alertContainer-reservateRoom-success-forStatus').html('<div class="alert alert-success">預約成功</div>');
-        reservateForm(event, reservationInfo);
-    }
     
-    const roomLinks_forStatus = document.getElementsByClassName('portfolio-link');
-    for (let i = 0; i < roomLinks_forStatus.length; i++) {
-        roomLinks_forStatus[i].addEventListener('click', function(event) {
-            const reservationInfo = {
-                room: this.getAttribute('data-room-name'),
-            };
+    // const roomLinks_forStatus = document.getElementsByClassName('portfolio-link');
+    // for (let i = 0; i < roomLinks_forStatus.length; i++) {
+    //     roomLinks_forStatus[i].addEventListener('click', function(event) {
+    //         console.log('success');
+    //         const reservationInfo = {
+    //             room: this.getAttribute('data-room-name'),
+    //         };
 
-            console.log('Reservation info:', reservationInfo);
+    //         console.log('Reservation info:', reservationInfo);
     
-            $('#reservateRoom-success-forStatus').off('click').on('click', function(event) {
-                handleReservation(event, reservationInfo);
-            });
-        });
-    }
+    //         $('#reservateRoom-success-forStatus').off('click').on('click', function(event) {
+    //             handleReservation(event, reservationInfo);
+    //         });
+    //     });
+    // }
 
     // $('#reservateEquip-success').on('click', function(event) {
     //     event.preventDefault();
@@ -1285,48 +1518,51 @@ $(document).ready(function() {
     //         equipLinks_forStatus[i].addEventListener('click', reservateForm);
     //     }
     // });
-});
+}
 
-function reservateForm(event) {
-    const roomName = event.currentTarget.getAttribute('data-room-name');
-
-    const date = $('#select-date-search').val();
-    const startTime = $('#startTimeSearch').val();
-    const endTime = $('#endTimeSearch').val();
+function reservateRoomForm(event, reservationInfo, date, startTime, endTime) {
+    var date = document.getElementById(date).value;
+    var startTime = document.getElementById(startTime).value;
+    var endTime = document.getElementById(endTime).value;
 
     $.ajax({
-        url: "http://localhost:3000/meeting-room",
+        url: "http://localhost:3000/add-new-room-reservation",
+        type: 'POST',
+        contentType: 'application/json',
         dataType: 'json',
+        data: JSON.stringify({ 
+            reservationInfo: reservationInfo.room,
+            date: date,
+            startTime: startTime,
+            endTime: endTime
+        }),
         success: function(data) {
-            const room = data.find(room => room.name == roomName);
-            console.log(room);
-            if(room) {
-                // 新的預約對象
-                const newReservation = {
-                    date: date,
-                    startTime: startTime,
-                    endTime: endTime,
-                    name: room.name,
-                    status: '尚未結束'
-                };
+            
+        },
+        error: function(error) {
+            console.error('Error loading JSON data', error);
+        }  
+    });
+}
 
-                // 將新的預約添加到房間的預約列表中
-                room.reservations.push(newReservation);
+function reservateEquipForm(event, reservationInfo, date, startTime, endTime) {
+    var date = document.getElementById(date).value;
+    var startTime = document.getElementById(startTime).value;
+    var endTime = document.getElementById(endTime).value;
 
-                // 將更新後的房間數據發送到服務器保存
-                $.ajax({
-                    url: "http://localhost:3000/update-meeting-room",
-                    type: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify(room),
-                    success: function(response) {
-                        // 顯示成功消息或進行其他操作
-                    },
-                    error: function(error) {
-                        console.error('Error updating meeting room', error);
-                    }
-                });
-            }
+    $.ajax({
+        url: "http://localhost:3000/add-new-equip-reservation",
+        type: 'POST',
+        contentType: 'application/json',
+        dataType: 'json',
+        data: JSON.stringify({ 
+            reservationInfo: reservationInfo.name,
+            date: date,
+            startTime: startTime,
+            endTime: endTime
+        }),
+        success: function(data) {
+            
         },
         error: function(error) {
             console.error('Error loading JSON data', error);

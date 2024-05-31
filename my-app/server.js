@@ -314,6 +314,50 @@ app.get('/user', (req, res) => {
     });
 });
 
+// 要做修改，改成符合搜尋條件的會議室
+app.post('/search-meeting-room', (req, res) => {
+    const { city, date, startTime, endTime, min, max } = req.body;
+    const reservationfilePath = path.join(__dirname, 'json', 'meeting_room.json');
+    const meetingRoomfilePath = path.join(__dirname, 'json', 'room_reservation.json');
+
+    fs.readFile(reservationfilePath, 'utf8', (err, data) => {
+        if (err) {
+            console.error('Error reading file:', err);
+            return res.status(500).send('Error reading file');
+        }
+
+        try {
+            const reservations = JSON.parse(data);
+            res.json(reservations);
+        } catch (parseError) {
+            console.error('Error parsing reservation JSON:', parseError);
+            return res.status(500).send('Error parsing reservation JSON');
+        }
+    });
+});
+
+// 要做修改，改成符合搜尋條件的設備
+app.post('/search-equipment', (req, res) => {
+    const { name, date, startTime, endTime } = req.body;
+    const reservationfilePath = path.join(__dirname, 'json', 'equipment.json');
+    const meetingRoomfilePath = path.join(__dirname, 'json', 'equip_reservation.json');
+
+    fs.readFile(reservationfilePath, 'utf8', (err, data) => {
+        if (err) {
+            console.error('Error reading file:', err);
+            return res.status(500).send('Error reading file');
+        }
+
+        try {
+            const reservations = JSON.parse(data);
+            res.json(reservations);
+        } catch (parseError) {
+            console.error('Error parsing reservation JSON:', parseError);
+            return res.status(500).send('Error parsing reservation JSON');
+        }
+    });
+});
+
 app.get('/meeting-room', (req, res) => {
     const filePath = path.join(__dirname, 'json', 'meeting_room.json');
     fs.readFile(filePath, 'utf8', (err, data) => {
@@ -350,36 +394,89 @@ app.get('/equipment', (req, res) => {
     });
 });
 
-app.post('/update-meeting-room', (req, res) => {
-    const updatedRoom = req.body;
+// 只將預約的日期、時間傳過來
+app.post('/add-new-room-reservation', (req, res) => {
+    const {reservationInfo, date, startTime, endTime} = req.body;
 
-    const filePath = path.join(__dirname, 'json', 'room_reservation.json');
+    console.log(reservationInfo, date, startTime, endTime);
 
-    fs.readFile(filePath, 'utf8', (err, data) => {
+    const meetingRoomfilePath = path.join(__dirname, 'json', 'meeting_room.json');
+    const reservationfilePath = path.join(__dirname, 'json', 'room_reservation.json');
+
+    fs.readFile(meetingRoomfilePath, 'utf8', (err, meetingRoomData) => {
         if (err) {
             console.error('Error reading file:', err);
             return res.status(500).send('Error reading file');
         }
 
-        let rooms;
-        try {
-            rooms = JSON.parse(data);
-        } catch (parseError) {
-            console.error('Error parsing JSON:', parseError);
-            return res.status(500).send('Error parsing JSON');
+        const rooms = JSON.parse(meetingRoomData);
+        const room = rooms.find(room => room.name === reservationInfo);
+        if(room) {
+            const newReservation = {
+                date: date,
+                startTime: startTime,
+                endTime: endTime,
+                name: room.name,
+                address: room.address,
+                status: '已結束'
+            };
+
+            fs.readFile(reservationfilePath, 'utf8', (err, reservationData) => {
+                const data = JSON.parse(reservationData);
+                data.push(newReservation);
+                console.log(data);
+                // fs.writeFile(meetingRoomfilePath, JSON.stringify(rooms, null, 2), 'utf8', (writeErr) => {
+                //     if (writeErr) {
+                //         console.error('Error writing file:', writeErr);
+                //         return res.status(500).send('Error writing file');
+                //     }
+                //     console.log('Room updated successfully');
+                //     return res.send('Room updated successfully');
+                // });
+            });
+        }
+    });
+});
+
+app.post('/add-new-equip-reservation', (req, res) => {
+    const {reservationInfo, date, startTime, endTime} = req.body;
+
+    console.log(reservationInfo, date, startTime, endTime);
+
+    const equipfilePath = path.join(__dirname, 'json', 'equipment.json');
+    const reservationfilePath = path.join(__dirname, 'json', 'equip_reservation.json');
+
+    fs.readFile(equipfilePath, 'utf8', (err, equipData) => {
+        if (err) {
+            console.error('Error reading file:', err);
+            return res.status(500).send('Error reading file');
         }
 
-        rooms.push(updatedRoom);
+        const rooms = JSON.parse(equipData);
+        const equip = rooms.find(equip => equip.name === reservationInfo);
+        if(equip) {
+            const newReservation = {
+                date: date,
+                startTime: startTime,
+                endTime: endTime,
+                name: equip.name,
+                status: '已歸還'
+            };
 
-        fs.writeFile(filePath, JSON.stringify(rooms, null, 2), 'utf8', (writeErr) => {
-            if (writeErr) {
-                console.error('Error writing file:', writeErr);
-                return res.status(500).send('Error writing file');
-            }
-
-            console.log('Room updated successfully');
-            return res.send('Room updated successfully');
-        });
+            fs.readFile(reservationfilePath, 'utf8', (err, reservationData) => {
+                const data = JSON.parse(reservationData);
+                data.push(newReservation);
+                console.log(data);
+                // fs.writeFile(meetingRoomfilePath, JSON.stringify(rooms, null, 2), 'utf8', (writeErr) => {
+                //     if (writeErr) {
+                //         console.error('Error writing file:', writeErr);
+                //         return res.status(500).send('Error writing file');
+                //     }
+                //     console.log('Room updated successfully');
+                //     return res.send('Room updated successfully');
+                // });
+            });
+        }
     });
 });
 
