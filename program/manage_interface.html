@@ -58,7 +58,6 @@
                 <div class="text-center mb-4">
                     <h2 class="section-heading text-uppercase">使用者管理</h2>
                 </div>
-                
                 <form class="user-form">
                     <div class="row align-items-center">
                         <div class="form-group col-md-6 d-flex align-items-center mb-2">
@@ -107,7 +106,27 @@
         <!-- Meeting Room Using and Equipment Using status-->
         <section class="page-section bg-light" id="reservation-management" hidden>
             <div class="container">
-                
+                <div class="text-center mb-4">
+                    <h2 class="section-heading text-uppercase">預約管理-會議室</h2>
+                </div>
+                <table class="table text-center">
+                    <thead>
+                        <tr>
+                            <th scope="col" class="col-0">ID</th>
+                            <th scope="col">預約者</th>
+                            <th scope="col">日期</th>
+                            <th scope="col">開始時間</th>
+                            <th scope="col">結束時間</th>
+                            <th scope="col">會議室</th>
+                            <th scope="col" class="col-3">地點</th>
+                            <th scope="col">狀態</th>
+                            <th scope="col">修改</th>
+                            <th scope="col">刪除</th>
+                        </tr>
+                    </thead>
+                    <tbody id="roomReservationTable"> 
+                    </tbody>
+                </table>
             </div>
         </section>
         <!-- Footer-->
@@ -138,21 +157,24 @@
                                     <!-- Project details-->
                                     <h2 class="text-uppercase">修改</h2> <br><br>
                                     <div id="modify-user-form"></div>
-                                    <!-- <form id="modify">
-                                        <div class="form-group">
-                                            <input class="form-control" id="logInEmail" type="email" placeholder="電子信箱 *" required="required">
-                                        </div>
-                                        <div class="form-group">
-                                            <input class="form-control" id="logInPassword" type="password" placeholder="密碼 *" required="required">
-                                        </div>
-                                        <a data-bs-toggle="modal" href="#signUpPage">註冊</a> <a data-bs-toggle="modal" href="#forgetPassword">忘記密碼</a>
-                                        <div class="text-center">
-                                            <button class="btn btn-primary btn-xl text-uppercase mb-4" id="logInButton" type="submit">登入</button>
-                                        </div>
-                                        <div id="alertContainer-enterEmail"></div>
-                                        <div id="alertContainer-enterPassword"></div>
-                                        <div id="alertContainer-wrongLogIn"></div>
-                                    </form> -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="portfolio-modal modal fade" id="modify-room-reservation" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="close-modal" data-bs-dismiss="modal"><img src="assets/img/close-icon.svg" alt="Close modal" /></div>
+                    <div class="container">
+                        <div class="row justify-content-center">
+                            <div class="col-lg-8">
+                                <div class="modal-body">
+                                    <!-- Project details-->
+                                    <h2 class="text-uppercase">修改</h2> <br><br>
+                                    <div id="modify-room-reservation-form"></div>
                                 </div>
                             </div>
                         </div>

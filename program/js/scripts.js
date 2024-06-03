@@ -81,6 +81,7 @@ $(document).ready(function() {
         setInterval(moreRoomContainer,1000);
         setInterval(moreEquipContainer,1000);
         // reservate_room();
+        applyRoleSettings();
     }
 
     if (document.body.classList.contains('reservationTable')) {
@@ -101,6 +102,7 @@ $(document).ready(function() {
         changePage();
         displayUserTable();
         addUser();
+        displayRoomReservationTable();
     }
 });
 
@@ -124,23 +126,11 @@ function checkLoginStatus() {
         document.getElementById('loggedOutSection').hidden = true;
         document.getElementById('navbar-login').hidden = true;
         document.getElementById('navbar-logout').hidden = false;
-        // document.getElementById('myReservationTable-room').hidden = false;
-        // document.getElementById('myReservationTable-equip').hidden = false;
-        // var pageBtns = document.getElementsByClassName('pageBtn');
-        // for (var i = 0; i < pageBtns.length; i++) {
-        //     pageBtns[i].hidden = false;
-        // }
     } else {
         document.getElementById('loggedInSection').hidden = true;
         document.getElementById('loggedOutSection').hidden = false;
         document.getElementById('navbar-login').hidden = false;
         document.getElementById('navbar-logout').hidden = true;
-        // document.getElementById('myReservationTable-room').hidden = true;
-        // document.getElementById('myReservationTable-equip').hidden = true;
-        // var pageBtns = document.getElementsByClassName('pageBtn');
-        // for (var i = 0; i < pageBtns.length; i++) {
-        //     pageBtns[i].hidden = true;
-        // }
     }
 }
 
@@ -165,6 +155,8 @@ function logout() {
 function displayTable() {
 
 }
+
+var permission = '';
 
 function loginEvent() {
     $('#logInButton').on('click', function(event) {
@@ -199,7 +191,6 @@ function loginEvent() {
             success: function(data) {
                 var emailExists = false;
                 var passwordExists = false;
-                var permisson = '';
                 data.forEach(user => {
                     if (user.email === email && user.password === password) {
                         emailExists = true;
@@ -215,12 +206,7 @@ function loginEvent() {
                 }
 
 
-                if (permission === 'admin') {
-                    localStorage.setItem('userPermission', true);
-                } else {
-                    localStorage.setItem('userPermission', false);
-                }
-
+                checkUserPermission();
                 applyRoleSettings();
             },
                 error: function(error) {
@@ -232,10 +218,18 @@ function loginEvent() {
     });
 }
 
+function checkUserPermission() {
+    if (permission === 'admin') {
+        localStorage.setItem('userPermission', true);
+    } else {
+        localStorage.setItem('userPermission', false);
+    }
+}
+
 function applyRoleSettings() {
     const permission = localStorage.getItem('userPermission');
     console.log('User permission:', permission);
-    if (permission) {
+    if (permission === 'true') {
         document.getElementById('userMenu').hidden = false;
     } else {
         document.getElementById('userMenu').hidden = true;
@@ -395,10 +389,12 @@ function displayRoomTable() {
                     <td>${reservation.status}</td>
                     <td><button class="btn btn-secondary btn-l" 
                                 onclick="deleteRowRoom(this)"
+                                data-user="${reservation.user}"
                                 data-date="${reservation.date}"
                                 data-startTime="${reservation.startTime}"
                                 data-endTime="${reservation.endTime}"
                                 data-name="${reservation.name}"
+                                data-address="${reservation.address}"
                                 data-status="${reservation.status}">
                             取消
                         </button>
@@ -430,22 +426,26 @@ function displayRoomTable() {
 
     window.deleteRowRoom = function(button) {
         const row = button.closest('tr');
-        const reservationDate = button.getAttribute('data-date');
-        const reservationStartTime = button.getAttribute('data-startTime');
-        const reservationEndTime = button.getAttribute('data-endTime');
-        const reservationName = button.getAttribute('data-name');
-        const reservationStatus = button.getAttribute('data-status');
+        const roomReservationUser = button.getAttribute('data-user');
+        const roomReservationDate = button.getAttribute('data-date');
+        const roomReservationStartTime = button.getAttribute('data-startTime');
+        const roomReservationEndTime = button.getAttribute('data-endTime');
+        const roomReservationName = button.getAttribute('data-name');
+        const roomReservationAddress = button.getAttribute('data-address');
+        const roomReservationStatus = button.getAttribute('data-status');
 
         $.ajax({
             url: "http://localhost:3000/delete-room-reservation",
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify({ 
-                date: reservationDate,
-                startTime: reservationStartTime,
-                endTime: reservationEndTime,
-                name: reservationName,
-                status: reservationStatus
+                user: roomReservationUser,
+                date: roomReservationDate,
+                startTime: roomReservationStartTime,
+                endTime: roomReservationEndTime,
+                name: roomReservationName,
+                address: roomReservationAddress,
+                status: roomReservationStatus
              }),
             dataType: 'json',
             success: function(data) {
@@ -456,6 +456,7 @@ function displayRoomTable() {
                 console.error('Error updating status', error);
             }
         });
+
 
         renderTable_room();
         renderPagination_room();
@@ -1825,4 +1826,218 @@ function checkPageStatus(whichPage) {
         document.getElementById('user-management').hidden = true;
         document.getElementById('reservation-management').hidden = false;
     }
+}
+
+function displayRoomReservationTable() {
+    const rowsPerPage = 10;
+    let currentPage = 1;
+    let roomReservationData = [];
+    
+    function roomReservationTable() {    
+        $.ajax({
+            url: "http://localhost:3000/room-reservation",
+            dataType: 'json',
+            success: function(data) {
+                roomReservationData = data;
+                renderTable_roomReservation();
+                renderPagination_roomReservation();
+            },
+            error: function(error) {
+                console.error('Error loading JSON data', error);
+            }
+        });
+    }
+
+    function renderTable_roomReservation() {
+        let tableBody = '';
+        const start = (currentPage - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+        const pageData = roomReservationData.slice(start, end);
+        
+        pageData.forEach((reservation,id) => {
+            tableBody += `
+                <tr>
+                    <td>${start + id + 1}</td>
+                    <td>${reservation.user}</td>
+                    <td>${reservation.date}</td>
+                    <td>${reservation.startTime}</td>
+                    <td>${reservation.endTime}</td>
+                    <td>${reservation.name}</td>
+                    <td>${reservation.address}</td>
+                    <td>${reservation.status}</td>
+                    <td>
+                        <button class="btn btn-primary btn-l" 
+                                data-bs-toggle="modal" 
+                                href="#modify-user-page"
+                                onclick="modifyRoomReservation(this)"
+                                data-user="${reservation.user}"
+                                data-date="${reservation.date}"
+                                data-startTime="${reservation.startTime}"
+                                data-endTime="${reservation.endTime}"
+                                data-name="${reservation.name}"
+                                data-address="${reservation.address}"
+                                data-status="${reservation.status}">
+                            修改
+                        </button>
+                    </td>
+                    <td>
+                        <button class="btn btn-secondary btn-l" 
+                                onclick="deleteRoomReservation(this)"
+                                data-user="${reservation.user}"
+                                data-date="${reservation.date}"
+                                data-startTime="${reservation.startTime}"
+                                data-endTime="${reservation.endTime}"
+                                data-name="${reservation.name}"
+                                data-address="${reservation.address}"
+                                data-status="${reservation.status}">
+                            刪除
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+        $('#roomReservationTable').html(tableBody);
+    }
+
+    function renderPagination_roomReservation() {
+        const pagination = $('#pagination');
+        pagination.empty();
+
+        const totalPages = Math.ceil(roomReservationData.length / rowsPerPage);
+
+        for (let i = 1; i <= totalPages; i++) {
+            pagination.append(`
+                <button class="pageBtn btn ${i === currentPage ? 'btn-primary' : 'btn-secondary'}" onclick="changePage(${i})">${i}</button>
+            `);
+        }
+    }
+
+    window.changePage = function(page) {
+        currentPage = page;
+        renderTable_roomReservation();
+        renderPagination_roomReservation();
+    }
+
+    window.deleteRoomReservation = function(button) {
+        const row = button.closest('tr');
+        const roomReservationUser = button.getAttribute('data-user');
+        const roomReservationDate = button.getAttribute('data-date');
+        const roomReservationStartTime = button.getAttribute('data-startTime');
+        const roomReservationEndTime = button.getAttribute('data-endTime');
+        const roomReservationName = button.getAttribute('data-name');
+        const roomReservationAddress = button.getAttribute('data-address');
+        const roomReservationStatus = button.getAttribute('data-status');
+
+        $.ajax({
+            url: "http://localhost:3000/delete-room-reservation",
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ 
+                user: roomReservationUser,
+                date: roomReservationDate,
+                startTime: roomReservationStartTime,
+                endTime: roomReservationEndTime,
+                name: roomReservationName,
+                address: roomReservationAddress,
+                status: roomReservationStatus
+             }),
+            dataType: 'json',
+            success: function(data) {
+                console.log('Status updated successfully', data);
+                row.remove();
+            },
+            error: function(error) {
+                console.error('Error updating status', error);
+            }
+        });
+
+        renderTable_roomReservation();
+        renderPagination_roomReservation();
+    }
+
+    roomReservationTable();
+}
+
+function modifyRoomReservation(button) {
+    const roomReservationUser = button.getAttribute('data-user');
+    const roomReservationDate = button.getAttribute('data-date');
+    const roomReservationStartTime = button.getAttribute('data-startTime');
+    const roomReservationEndTime = button.getAttribute('data-endTime');
+    const roomReservationName = button.getAttribute('data-name');
+    const roomReservationAddress = button.getAttribute('data-address');
+    const roomReservationStatus = button.getAttribute('data-status');
+
+    let modifyRoomReservationFormBody = '';
+    formBody += `
+        <form id="modify">
+            <div class="row align-items-center">
+                <div class="form-group col-md-4 d-flex align-items-center mb-2">
+                    <label for="modify-name" class="col-md-2">使用者:</label>
+                    <input type="text" class="form-control" id="modify-name" name="name" value="${roomReservationUser}" disabled>
+                </div>
+                <div class="form-group col-md-4 d-flex align-items-center mb-2">
+                    <label for="modify-dates" class="col-md-2">日期:</label>
+                    <input type="date" list="dates" class="form-control text-center" id="modify-date" value="${roomReservationDate}">
+                    <datalist id="dates"></datalist>
+                </div>
+                <div class="form-group col-md-4 d-flex align-items-center mb-2">
+                    <label for="modify-startTime" class="col-md-2">使用者:</label>
+                    <select class="custom-form-select text-center flatpickr" id="modify-startTime"></select>
+                </div>
+                <div class="form-group col-md-4 d-flex align-items-center mb-2">
+                    <label for="modify-endTime" class="col-md-2">使用者:</label>
+                    <select class="custom-form-select text-center flatpickr" id="modify-endTime"></select>
+                </div>
+            </div>
+            <div class="row align-items-center form-group-inline mb-2">
+                <div class="form-group col-md-6 d-flex align-items-center">
+                    <label for="modify-password" class="col-md-2">密碼:</label>
+                    <input type="text" class="form-control" id="modify-password" name="password" value="${userPassword}" required>
+                </div>
+                <div class="form-group col-md-6 d-flex align-items-center">
+                    <label for="modify-permission" class="col-md-2">權限:</label>
+                    <select class="form-select" id="modify-permission">
+                        <option value="user" ${userPermission === 'user' ? 'selected' : ''}>user</option>
+                        <option value="admin" ${userPermission === 'admin' ? 'selected' : ''}>admin</option>
+                    </select>
+                </div>
+            </div>
+            <div class="text-center">
+                <button class="btn btn-primary btn-xl mb-4" id="modify-button" type="submit">完成</button>
+            </div>
+        </form>
+    `;
+    
+    $('#modify-room-reservation-form').html(modifyRoomReservationFormBody);
+
+    modify_button_click();
+}
+
+function modify_button_click() {
+    $('#modify-button').on('click', function(event) {
+        event.preventDefault();
+        const modifyName = document.getElementById('modify-name').value;
+        const modifyEmail = document.getElementById('modify-email').value;
+        const modifyPassword = document.getElementById('modify-password').value;
+        const modifyPermission = document.getElementById('modify-permission').value;
+
+        $.ajax({
+            url: "http://localhost:3000/modify-user",
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ 
+                name: modifyName,
+                email: modifyEmail,
+                password: modifyPassword,
+                permission: modifyPermission
+             }),
+            dataType: 'json',
+            success: function(data) {
+                console.log('Status updated successfully', data);
+            },
+            error: function(error) {
+                console.error('Error updating status', error);
+            }
+        });
+    });
 }

@@ -201,7 +201,7 @@ app.post('/update-room-reservation-status', (req, res) => {
 });
 
 app.post('/delete-room-reservation', (req, res) => {
-    const { room, date, startTime, endTime, status } = req.body;
+    const { user, date, startTime, endTime, name, address, status } = req.body;
     const filePath = path.join(__dirname, 'json/room_reservation.json');
 
     fs.readFile(filePath, 'utf8', (err, data) => {
@@ -211,13 +211,6 @@ app.post('/delete-room-reservation', (req, res) => {
         }
 
         let reservations = JSON.parse(data);
-
-
-        // reservations.forEach(reservation => {
-        //     if (reservation.room === room && reservation.date === date && reservation.startTime === startTime && reservation.endTime === endTime) {
-        //         reservation.status = status;
-        //     }
-        // })
 
         fs.writeFile(filePath, JSON.stringify(reservations, null, 2), (err) => {
             if (err) {
