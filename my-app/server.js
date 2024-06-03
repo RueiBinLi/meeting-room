@@ -260,6 +260,52 @@ app.post('/delete-equip-reservation', (req, res) => {
     });
 });
 
+app.post('/delete-user', (req, res) => {
+    const { name, email, password, permission } = req.body;
+    const filePath = path.join(__dirname, 'json/users.json');
+
+    fs.readFile(filePath, 'utf8', (err, data) => {
+        if (err) {
+            console.error('Error reading file:', err);
+            return res.status(500).send('Error reading file');
+        }
+
+        let users = JSON.parse(data);
+
+        fs.writeFile(filePath, JSON.stringify(users, null, 2), (err) => {
+            if (err) {
+                console.error('Error writing file:', err);
+                return res.status(500).send('Error writing file');
+            }
+
+            res.json({ message: 'Status updated successfully' });
+        });
+    });
+});
+
+app.post('/modify-user', (req, res) => {
+    const { name, email, password, permission } = req.body;
+    const filePath = path.join(__dirname, 'json/users.json');
+
+    fs.readFile(filePath, 'utf8', (err, data) => {
+        if (err) {
+            console.error('Error reading file:', err);
+            return res.status(500).send('Error reading file');
+        }
+
+        let users = JSON.parse(data);
+
+        fs.writeFile(filePath, JSON.stringify(users, null, 2), (err) => {
+            if (err) {
+                console.error('Error writing file:', err);
+                return res.status(500).send('Error writing file');
+            }
+
+            res.json({ message: 'Status updated successfully' });
+        });
+    });
+});
+
 app.get('/room-reservation', (req, res) => {
     const filePath = path.join(__dirname, 'json', 'room_reservation.json');
     fs.readFile(filePath, 'utf8', (err, data) => {
@@ -305,8 +351,8 @@ app.get('/user', (req, res) => {
         }
 
         try {
-            const reservations = JSON.parse(data);
-            res.json(reservations);
+            const userData = JSON.parse(data);
+            res.json(userData);
         } catch (parseError) {
             console.error('Error parsing JSON:', parseError);
             return res.status(500).send('Error parsing JSON');

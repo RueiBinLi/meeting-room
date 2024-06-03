@@ -36,6 +36,15 @@
                         <li class="nav-item"><a class="nav-link needLogin" href="reservationTable.html" target="_blank">我的預定</a></li>
                         <li class="nav-item me-0"><a class="nav-link" id="navbar-logout" onclick="logout()" hidden>登出</a></li>
                         <li class="nav-item me-0"><a class="nav-link" data-bs-toggle="modal" href="#login_page" id="navbar-login">登入</a></li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" id="userMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false" hidden>
+                                選擇角色
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="userMenu">
+                                <li><a class="dropdown-item" href="#index.html">使用者</a></li>
+                                <li><a class="dropdown-item" href="manage_interface.html" target="_blank">管理員</a></li>
+                            </ul>
+                        </li>
                     </ul>
                 </div>
             </div>

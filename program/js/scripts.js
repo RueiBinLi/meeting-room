@@ -96,6 +96,12 @@ $(document).ready(function() {
         setInterval(reservationRoomContainer,1000);
         setInterval(reservationEquipContainer,1000);
     }
+
+    if(document.body.classList.contains('manage_interface')) {
+        changePage();
+        displayUserTable();
+        addUser();
+    }
 });
 
 function needLogin() {
@@ -151,7 +157,9 @@ function login(event) {
 
 function logout() {
     localStorage.removeItem('loggedIn');
+    localStorage.removeItem('userPermission');
     checkLoginStatus();
+    applyRoleSettings();
 }
 
 function displayTable() {
@@ -191,10 +199,12 @@ function loginEvent() {
             success: function(data) {
                 var emailExists = false;
                 var passwordExists = false;
+                var permisson = '';
                 data.forEach(user => {
                     if (user.email === email && user.password === password) {
                         emailExists = true;
                         passwordExists = true;
+                        permission = user.permission;
                     }
                 });
 
@@ -203,6 +213,15 @@ function loginEvent() {
                 } else {
                     $('#alertContainer-wrongLogIn').html('<div class="alert alert-danger">錯誤的電子信箱或密碼</div>');
                 }
+
+
+                if (permission === 'admin') {
+                    localStorage.setItem('userPermission', true);
+                } else {
+                    localStorage.setItem('userPermission', false);
+                }
+
+                applyRoleSettings();
             },
                 error: function(error) {
                 console.error('Error loading JSON data', error);
@@ -211,6 +230,16 @@ function loginEvent() {
             }
         });
     });
+}
+
+function applyRoleSettings() {
+    const permission = localStorage.getItem('userPermission');
+    console.log('User permission:', permission);
+    if (permission) {
+        document.getElementById('userMenu').hidden = false;
+    } else {
+        document.getElementById('userMenu').hidden = true;
+    }
 }
 
 let reservationInfo = {};
@@ -1568,4 +1597,232 @@ function reservateEquipForm(event, reservationInfo, date, startTime, endTime) {
             console.error('Error loading JSON data', error);
         }  
     });
+}
+
+function displayUserTable() {
+    const rowsPerPage = 20;
+    let currentPage = 1;
+    let userData = [];
+    
+    function userTable() {    
+        $.ajax({
+            url: "http://localhost:3000/user",
+            dataType: 'json',
+            success: function(data) {
+                userData = data;
+                renderTable_user();
+                renderPagination_user();
+            },
+            error: function(error) {
+                console.error('Error loading JSON data', error);
+            }
+        });
+    }
+
+    function renderTable_user() {
+        let tableBody = '';
+        const start = (currentPage - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+        const pageData = userData.slice(start, end);
+        
+        pageData.forEach((user,id) => {
+            tableBody += `
+                <tr>
+                    <td>${start + id + 1}</td>
+                    <td>${user.name}</td>
+                    <td>${user.email}</td>
+                    <td>${btoa(user.password)}</td>
+                    <td>${user.permission}</td>
+                    <td><button class="btn btn-primary btn-l" 
+                                data-bs-toggle="modal" 
+                                href="#modify-user-page"
+                                onclick="modify_user_page_display(this)"
+                                data-name="${user.name}"
+                                data-email="${user.email}"
+                                data-password="${user.password}"
+                                data-permission="${user.permission}">
+                            修改
+                        </button>
+                    </td>
+                    <td><button class="btn btn-secondary btn-l" 
+                                onclick="deleteRowUser(this)"
+                                data-name="${user.name}"
+                                data-email="${user.email}"
+                                data-password="${user.password}"
+                                data-permission="${user.permission}">
+                            停權
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+        $('#userTable').html(tableBody);
+    }
+
+    function renderPagination_user() {
+        const pagination = $('#pagination');
+        pagination.empty();
+
+        const totalPages = Math.ceil(userData.length / rowsPerPage);
+
+        for (let i = 1; i <= totalPages; i++) {
+            pagination.append(`
+                <button class="pageBtn btn ${i === currentPage ? 'btn-primary' : 'btn-secondary'}" onclick="changePage(${i})">${i}</button>
+            `);
+        }
+    }
+
+    window.changePage = function(page) {
+        currentPage = page;
+        renderTable_user();
+        renderPagination_user();
+    }
+
+    window.deleteRowUser = function(button) {
+        const row = button.closest('tr');
+        const userName = button.getAttribute('data-name');
+        const userEmail = button.getAttribute('data-email');
+        const userPassword = button.getAttribute('data-password');
+        const userPermission = button.getAttribute('data-permission');
+
+        $.ajax({
+            url: "http://localhost:3000/delete-user",
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ 
+                name: userName,
+                email: userEmail,
+                password: userPassword,
+                permission: userPermission
+             }),
+            dataType: 'json',
+            success: function(data) {
+                console.log('Status updated successfully', data);
+                row.remove();
+            },
+            error: function(error) {
+                console.error('Error updating status', error);
+            }
+        });
+
+        renderTable_user();
+        renderPagination_user();
+    }
+
+    window.modifyUser = function(button) {
+        
+    }
+
+    userTable();
+}
+
+function addUser() {
+    $('#add-user').on('click', function(event) {
+        event.preventDefault();
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const permission = document.getElementById('permission').value;
+
+        console.log(name, email, password, permission);
+    });
+}
+
+function modify_user_page_display(button) {
+    const userName = button.getAttribute('data-name');
+    const userEmail = button.getAttribute('data-email');
+    const userPassword = button.getAttribute('data-password');
+    const userPermission = button.getAttribute('data-permission');
+
+    let formBody = '';
+    formBody += `
+        <form id="modify">
+            <div class="row align-items-center">
+                <div class="form-group col-md-6 d-flex align-items-center mb-2">
+                    <label for="modify-name" class="col-md-2">姓名:</label>
+                    <input type="text" class="form-control" id="modify-name" name="name" value="${userName}" required>
+                </div>
+                <div class="form-group col-md-6 d-flex align-items-center mb-2">
+                    <label for="modify-email" class="col-md-2">信箱:</label>
+                    <input type="email" class="form-control" id="modify-email" name="email" value="${userEmail}" required>
+                </div>
+            </div>
+            <div class="row align-items-center form-group-inline mb-2">
+                <div class="form-group col-md-6 d-flex align-items-center">
+                    <label for="modify-password" class="col-md-2">密碼:</label>
+                    <input type="text" class="form-control" id="modify-password" name="password" value="${userPassword}" required>
+                </div>
+                <div class="form-group col-md-6 d-flex align-items-center">
+                    <label for="modify-permission" class="col-md-2">權限:</label>
+                    <select class="form-select" id="modify-permission">
+                        <option value="user" ${userPermission === 'user' ? 'selected' : ''}>user</option>
+                        <option value="admin" ${userPermission === 'admin' ? 'selected' : ''}>admin</option>
+                    </select>
+                </div>
+            </div>
+            <div class="text-center">
+                <button class="btn btn-primary btn-xl mb-4" id="modify-button" type="submit">完成</button>
+            </div>
+        </form>
+    `;
+    
+    $('#modify-user-form').html(formBody);
+
+    modify_button_click();
+}
+
+function modify_button_click() {
+    $('#modify-button').on('click', function(event) {
+        event.preventDefault();
+        const modifyName = document.getElementById('modify-name').value;
+        const modifyEmail = document.getElementById('modify-email').value;
+        const modifyPassword = document.getElementById('modify-password').value;
+        const modifyPermission = document.getElementById('modify-permission').value;
+
+        $.ajax({
+            url: "http://localhost:3000/modify-user",
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ 
+                name: modifyName,
+                email: modifyEmail,
+                password: modifyPassword,
+                permission: modifyPermission
+             }),
+            dataType: 'json',
+            success: function(data) {
+                console.log('Status updated successfully', data);
+            },
+            error: function(error) {
+                console.error('Error updating status', error);
+            }
+        });
+    });
+}
+
+function changePage() {
+    $('#user-management-link').on('click', function(event) {
+        localStorage.setItem('page', 'true');
+        const whichPage = localStorage.getItem('page');
+        checkPageStatus(whichPage);
+    });
+
+    $('#reservation-management-link').on('click', function(event) {
+        localStorage.setItem('page', 'false');
+        const whichPage = localStorage.getItem('page');
+        checkPageStatus(whichPage);
+    });
+
+    const whichPage = localStorage.getItem('page');
+    checkPageStatus(whichPage);
+}
+
+function checkPageStatus(whichPage) {
+    if (whichPage === 'true' || whichPage === null) {
+        document.getElementById('user-management').hidden = false;
+        document.getElementById('reservation-management').hidden = true;
+    } else {
+        document.getElementById('user-management').hidden = true;
+        document.getElementById('reservation-management').hidden = false;
+    }
 }

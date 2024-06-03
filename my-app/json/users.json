@@ -3,47 +3,56 @@
     "email": "user1@example.com",
     "password": "123",
     "name": "asd",
-    "verificationCode": ""
+    "verificationCode": "",
+    "permission": "user"
   },
   {
     "email": "user2@example.com",
     "password": "123",
     "name": "asd",
-    "verificationCode": ""
+    "verificationCode": "",
+    "permission": "user"
   },
   {
     "email": "user3@example.com",
     "password": "123",
     "name": "asd",
-    "verificationCode": ""
+    "verificationCode": "",
+    "permission": "user"
   },
   {
     "email": "123@gmail.com",
     "password": "123",
     "name": "123",
-    "verificationCode": ""
+    "verificationCode": "",
+    "permission": "user"
   },
   {
     "email": "234@gmail.com",
     "password": "123",
     "name": "123",
-    "verificationCode": ""
+    "verificationCode": "",
+    "permission": "admin"
   },
   {
     "email": "robbylee0929@gmail.com",
     "password": "123",
     "name": "123",
-    "verificationCode": ""
+    "verificationCode": "",
+    "permission": "admin"
   },
   {
     "email": "123@123",
     "password": "123",
-    "name": "123"
+    "name": "123",
+    "verificationCode": "",
+    "permission": "user"
   },
   {
     "email": "he001295863@gmail.com",
     "password": "1234567",
     "name": "123",
-    "verificationCode": ""
+    "verificationCode": "",
+    "permission": "admin"
   }
 ]
