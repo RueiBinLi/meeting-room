@@ -48,8 +48,7 @@
         <!-- Masthead-->
         <header class="masthead">
             <div class="container">
-                <div class="masthead-subheading">歡迎來到會議室預約系統</div>
-                <a class="btn btn-primary btn-xl text-uppercase" href="#services">更多</a>
+                <div class="masthead-subheading">後台</div>
             </div>
         </header>
         <!-- Services-->
@@ -62,17 +61,17 @@
                     <div class="row align-items-center">
                         <div class="form-group col-md-6 d-flex align-items-center mb-2">
                             <label for="name" class="col-md-1">姓名:</label>
-                            <input type="text" class="form-control" id="name" name="name" required>
+                            <input type="text" class="form-control" id="name" name="name" required="required">
                         </div>
                         <div class="form-group col-md-6 d-flex align-items-center mb-2">
                             <label for="email" class="col-md-1">信箱:</label>
-                            <input type="email" class="form-control" id="email" name="email" required>
+                            <input type="email" class="form-control" id="email" name="email" required="required">
                         </div>
                     </div>
                     <div class="row align-items-center form-group-inline mb-2">
                         <div class="form-group col-md-6 d-flex align-items-center">
                             <label for="password" class="col-md-1">密碼:</label>
-                            <input type="text" class="form-control" id="password" name="password" required>
+                            <input type="text" class="form-control" id="password" name="password" required="required">
                         </div>
                         <div class="form-group col-md-6 d-flex align-items-center">
                             <label for="permission" class="col-md-1">權限:</label>
@@ -105,7 +104,7 @@
         </section>
         <!-- Meeting Room Using and Equipment Using status-->
         <section class="page-section bg-light" id="reservation-management" hidden>
-            <div class="container">
+            <div class="container mb-5">
                 <div class="text-center mb-4">
                     <h2 class="section-heading text-uppercase">預約管理-會議室</h2>
                 </div>
@@ -127,25 +126,32 @@
                     <tbody id="roomReservationTable"> 
                     </tbody>
                 </table>
+                <div id="paginationRoomTable" class="text-center mb-6"></div>
+            </div>
+            <div class="container">
+                <div class="text-center mb-4">
+                    <h2 class="section-heading text-uppercase">預約管理-設備</h2>
+                </div>
+                <table class="table text-center">
+                    <thead>
+                        <tr>
+                            <th scope="col" class="col-0">ID</th>
+                            <th scope="col">預約者</th>
+                            <th scope="col">日期</th>
+                            <th scope="col">開始時間</th>
+                            <th scope="col">結束時間</th>
+                            <th scope="col">設備</th>
+                            <th scope="col">狀態</th>
+                            <th scope="col">修改</th>
+                            <th scope="col">刪除</th>
+                        </tr>
+                    </thead>
+                    <tbody id="equipReservationTable"> 
+                    </tbody>
+                </table>
+                <div id="paginationEquipTable" class="text-center mb-6"></div>
             </div>
         </section>
-        <!-- Footer-->
-        <footer class="footer py-4">
-            <div class="container">
-                <div class="row align-items-center">
-                    <div class="col-lg-4 text-lg-start">版權所有 © 會議室預約系統 2024</div>
-                    <div class="col-lg-4 my-3 my-lg-0">
-                        <a class="btn btn-dark btn-social mx-2" href="#!" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-                        <a class="btn btn-dark btn-social mx-2" href="#!" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-                        <a class="btn btn-dark btn-social mx-2" href="#!" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-                    </div>
-                    <div class="col-lg-4 text-lg-end">
-                        <a class="link-dark text-decoration-none me-3" href="#!">隱私政策</a>
-                        <a class="link-dark text-decoration-none" href="#!">服務條款</a>
-                    </div>
-                </div>
-            </div>
-        </footer>
         <div class="portfolio-modal modal fade" id="modify-user-page" tabindex="-1" role="dialog" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -175,6 +181,24 @@
                                     <!-- Project details-->
                                     <h2 class="text-uppercase">修改</h2> <br><br>
                                     <div id="modify-room-reservation-form"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="portfolio-modal modal fade" id="modify-equip-reservation" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="close-modal" data-bs-dismiss="modal"><img src="assets/img/close-icon.svg" alt="Close modal" /></div>
+                    <div class="container">
+                        <div class="row justify-content-center">
+                            <div class="col-lg-8">
+                                <div class="modal-body">
+                                    <!-- Project details-->
+                                    <h2 class="text-uppercase">修改</h2> <br><br>
+                                    <div id="modify-equip-reservation-form"></div>
                                 </div>
                             </div>
                         </div>

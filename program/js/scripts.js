@@ -103,6 +103,7 @@ $(document).ready(function() {
         displayUserTable();
         addUser();
         displayRoomReservationTable();
+        displayEquipReservationTable();
     }
 });
 
@@ -751,6 +752,18 @@ function dateDisable() {
     document.getElementById('select-date-equipment').setAttribute('min', today);
 }
 
+function addOptions(hourStart, minuteStart, selectElement) {
+    for (var hour = hourStart; hour < 24; hour++) {
+        for (var minute = minuteStart; minute < 60; minute += 30) {
+            var option = document.createElement("option");
+            option.text = ('0' + hour).slice(-2) + ":" + ('0' + minute).slice(-2);
+            option.value = ('0' + hour).slice(-2) + ":" + ('0' + minute).slice(-2);
+            selectElement.add(option);
+        }
+        minuteStart = 0;
+    }
+}
+
 // 會議室搜尋開始時間和結束時間的選項
 function startTimeAndEndTime() {
     var now = new Date();
@@ -765,22 +778,16 @@ function startTimeAndEndTime() {
         selectStartTime.innerHTML = '';
         selectEndTime.innerHTML = '';
         
-        // Helper function to add options
-        function addOptions(hourStart, minuteStart, selectElement) {
-            for (var hour = hourStart; hour < 24; hour++) {
-                for (var minute = minuteStart; minute < 60; minute += 30) {
-                    var option = document.createElement("option");
-                    option.text = ('0' + hour).slice(-2) + ":" + ('0' + minute).slice(-2);
-                    option.value = ('0' + hour).slice(-2) + ":" + ('0' + minute).slice(-2);
-                    selectElement.add(option);
-                }
-                minuteStart = 0;
-            }
-        }
-        
         if (selectedDate.toISOString().split('T')[0] === now.toISOString().split('T')[0]) {
-            addOptions(now.getHours(), now.getMinutes() > 30 ? 0 : 30, selectStartTime);       
-            addOptions(now.getHours(), now.getMinutes() > 30 ? 0 : 30, selectEndTime);
+            let getHours = now.getHours();
+            let getMinutes = now.getMinutes() > 30 ? 0 : 30;
+
+            if (now.getMinutes() > 30) {
+                getHours += 1;
+            }
+
+            addOptions(getHours, getMinutes, selectStartTime);       
+            addOptions(getHours, getMinutes, selectEndTime);
         } else {
             addOptions(0, 0, selectStartTime);
             addOptions(0, 0, selectEndTime);
@@ -885,22 +892,16 @@ function equipStartTimeAndEndTime() {
         selectStartTime.innerHTML = '';
         selectEndTime.innerHTML = '';
         
-        // Helper function to add options
-        function addOptions(hourStart, minuteStart, selectElement) {
-            for (var hour = hourStart; hour < 24; hour++) {
-                for (var minute = minuteStart; minute < 60; minute += 30) {
-                    var option = document.createElement("option");
-                    option.text = ('0' + hour).slice(-2) + ":" + ('0' + minute).slice(-2);
-                    option.value = ('0' + hour).slice(-2) + ":" + ('0' + minute).slice(-2);
-                    selectElement.add(option);
-                }
-                minuteStart = 0;
-            }
-        }
-        
         if (selectedDate.toISOString().split('T')[0] === now.toISOString().split('T')[0]) {
-            addOptions(now.getHours(), now.getMinutes() > 30 ? 0 : 30, selectStartTime);       
-            addOptions(now.getHours(), now.getMinutes() > 30 ? 0 : 30, selectEndTime);
+            let getHours = now.getHours();
+            let getMinutes = now.getMinutes() > 30 ? 0 : 30;
+
+            if (now.getMinutes() > 30) {
+                getHours += 1;
+            }
+
+            addOptions(getHours, getMinutes, selectStartTime);       
+            addOptions(getHours, getMinutes, selectEndTime);
         } else {
             addOptions(0, 0, selectStartTime);
             addOptions(0, 0, selectEndTime);
@@ -981,8 +982,15 @@ function initializeDateTimePicker(selectDate, startTime, endTime) {
         selectEndTimeSearch.innerHTML = '';
 
         if (selectedDateSearch.toISOString().split('T')[0] === now.toISOString().split('T')[0]) {
-            addOptions(now.getHours(), now.getMinutes() > 30 ? 0 : 30, selectStartTimeSearch);
-            addOptions(now.getHours(), now.getMinutes() > 30 ? 0 : 30, selectEndTimeSearch);
+            let getHours = now.getHours();
+            let getMinutes = now.getMinutes() > 30 ? 0 : 30;
+
+            if (now.getMinutes() > 30) {
+                getHours += 1;
+            }
+            
+            addOptions(getHours, getMinutes > 30 ? 0 : 30, selectStartTimeSearch);
+            addOptions(getHours, getMinutes, selectEndTimeSearch);
         } else {
             addOptions(0, 0, selectStartTimeSearch);
             addOptions(0, 0, selectEndTimeSearch);
@@ -1725,7 +1733,29 @@ function addUser() {
         const password = document.getElementById('password').value;
         const permission = document.getElementById('permission').value;
 
-        console.log(name, email, password, permission);
+        if(!name || !email || !password || !permission) {
+            alert('請填寫完整');
+            return;
+        }
+
+        $.ajax({
+            url: "http://localhost:3000/add-user",
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ 
+                name: name,
+                email: email,
+                password: password,
+                permission: permission
+             }),
+            dataType: 'json',
+            success: function(data) {
+                console.log('Status updated successfully', data);
+            },
+            error: function(error) {
+                console.error('Error updating status', error);
+            }
+        });
     });
 }
 
@@ -1868,7 +1898,7 @@ function displayRoomReservationTable() {
                     <td>
                         <button class="btn btn-primary btn-l" 
                                 data-bs-toggle="modal" 
-                                href="#modify-user-page"
+                                href="#modify-room-reservation"
                                 onclick="modifyRoomReservation(this)"
                                 data-user="${reservation.user}"
                                 data-date="${reservation.date}"
@@ -1900,19 +1930,19 @@ function displayRoomReservationTable() {
     }
 
     function renderPagination_roomReservation() {
-        const pagination = $('#pagination');
+        const pagination = $('#paginationRoomTable');
         pagination.empty();
 
         const totalPages = Math.ceil(roomReservationData.length / rowsPerPage);
 
         for (let i = 1; i <= totalPages; i++) {
             pagination.append(`
-                <button class="pageBtn btn ${i === currentPage ? 'btn-primary' : 'btn-secondary'}" onclick="changePage(${i})">${i}</button>
+                <button class="pageBtn btn ${i === currentPage ? 'btn-primary' : 'btn-secondary'}" onclick="changePageRoomTable(${i})">${i}</button>
             `);
         }
     }
 
-    window.changePage = function(page) {
+    window.changePageRoomTable = function(page) {
         currentPage = page;
         renderTable_roomReservation();
         renderPagination_roomReservation();
@@ -1968,42 +1998,51 @@ function modifyRoomReservation(button) {
     const roomReservationStatus = button.getAttribute('data-status');
 
     let modifyRoomReservationFormBody = '';
-    formBody += `
+    modifyRoomReservationFormBody += `
         <form id="modify">
             <div class="row align-items-center">
-                <div class="form-group col-md-4 d-flex align-items-center mb-2">
-                    <label for="modify-name" class="col-md-2">使用者:</label>
-                    <input type="text" class="form-control" id="modify-name" name="name" value="${roomReservationUser}" disabled>
+                <div class="form-group col-md-6 d-flex align-items-center mb-2">
+                    <label for="modify-user" class="col-md-4">使用者:</label>
+                    <input type="text" class="form-control text-center" id="modify-user" name="name" value="${roomReservationUser}">
                 </div>
-                <div class="form-group col-md-4 d-flex align-items-center mb-2">
-                    <label for="modify-dates" class="col-md-2">日期:</label>
+                <div class="form-group col-md-6 d-flex align-items-center mb-2">
+                    <label for="modify-date" class="col-md-4">日期:</label>
                     <input type="date" list="dates" class="form-control text-center" id="modify-date" value="${roomReservationDate}">
                     <datalist id="dates"></datalist>
                 </div>
-                <div class="form-group col-md-4 d-flex align-items-center mb-2">
-                    <label for="modify-startTime" class="col-md-2">使用者:</label>
+            </div>
+            <div class="row align-items-center">
+                <div class="form-group col-md-6 d-flex align-items-center mb-2">
+                    <label for="modify-startTime" class="col-md-4">開始時間:</label>
                     <select class="custom-form-select text-center flatpickr" id="modify-startTime"></select>
                 </div>
-                <div class="form-group col-md-4 d-flex align-items-center mb-2">
-                    <label for="modify-endTime" class="col-md-2">使用者:</label>
+                <div class="form-group col-md-6 d-flex align-items-center mb-2">
+                    <label for="modify-endTime" class="col-md-4">結束時間:</label>
                     <select class="custom-form-select text-center flatpickr" id="modify-endTime"></select>
                 </div>
             </div>
-            <div class="row align-items-center form-group-inline mb-2">
-                <div class="form-group col-md-6 d-flex align-items-center">
-                    <label for="modify-password" class="col-md-2">密碼:</label>
-                    <input type="text" class="form-control" id="modify-password" name="password" value="${userPassword}" required>
+            <div class="row align-items-center">
+                <div class="form-group col-md-6 d-flex align-items-center mb-2">
+                    <label for="modify-name" class="col-md-4">會議室:</label>
+                    <input type="text" class="form-control text-center" id="modify-name" name="name" value="${roomReservationName}">
                 </div>
-                <div class="form-group col-md-6 d-flex align-items-center">
-                    <label for="modify-permission" class="col-md-2">權限:</label>
-                    <select class="form-select" id="modify-permission">
-                        <option value="user" ${userPermission === 'user' ? 'selected' : ''}>user</option>
-                        <option value="admin" ${userPermission === 'admin' ? 'selected' : ''}>admin</option>
+                <div class="form-group col-md-6 d-flex align-items-center mb-2">
+                    <label for="modify-address" class="col-md-4">地址:</label>
+                    <input type="text" class="form-control text-center" id="modify-address" value="${roomReservationAddress}">
+                </div>
+            </div>
+            <div class="row align-items-center">
+                <div class="form-group col-md-12 d-flex align-items-center mb-2">
+                    <label for="modify-status" class="col-md-2">狀態: </label>
+                    <select class="form-select text-center" id="modify-status">
+                        <option value="尚未結束" ${roomReservationStatus === '尚未結束' ? 'selected' : ''}>尚未結束</option>
+                        <option value="已結束" ${roomReservationStatus === '已結束' ? 'selected' : ''}>已結束</option>
+                        <option value="已取消" ${roomReservationStatus === '已取消' ? 'selected' : ''}>已取消</option>
                     </select>
                 </div>
             </div>
             <div class="text-center">
-                <button class="btn btn-primary btn-xl mb-4" id="modify-button" type="submit">完成</button>
+                <button class="btn btn-primary btn-xl mb-4" id="modify-room-reservation-button" type="submit">完成</button>
             </div>
         </form>
     `;
@@ -2011,25 +2050,311 @@ function modifyRoomReservation(button) {
     $('#modify-room-reservation-form').html(modifyRoomReservationFormBody);
 
     modify_button_click();
+    modifyStartTimeAndEndTime(roomReservationStartTime, roomReservationEndTime, 'modify-date', 'modify-startTime', 'modify-endTime');
 }
 
 function modify_button_click() {
-    $('#modify-button').on('click', function(event) {
+    $('#modify-room-reservation-button').on('click', function(event) {
         event.preventDefault();
+        const modifyUser = document.getElementById('modify-user').value;
+        const modifyDate = document.getElementById('modify-date').value;
+        const modifyStartTime = document.getElementById('modify-startTime').value;
+        const modifyEndTime = document.getElementById('modify-endTime').value;
         const modifyName = document.getElementById('modify-name').value;
-        const modifyEmail = document.getElementById('modify-email').value;
-        const modifyPassword = document.getElementById('modify-password').value;
-        const modifyPermission = document.getElementById('modify-permission').value;
+        const modifyAddress = document.getElementById('modify-address').value;
+        const modifyStatus = document.getElementById('modify-status').value;
 
         $.ajax({
-            url: "http://localhost:3000/modify-user",
+            url: "http://localhost:3000/modify-room-reservation",
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify({ 
+                user: modifyUser,
+                date: modifyDate,
+                startTime: modifyStartTime,
+                endTime: modifyEndTime,
                 name: modifyName,
-                email: modifyEmail,
-                password: modifyPassword,
-                permission: modifyPermission
+                address: modifyAddress,
+                status: modifyStatus
+             }),
+            dataType: 'json',
+            success: function(data) {
+                console.log('Status updated successfully', data);
+            },
+            error: function(error) {
+                console.error('Error updating status', error);
+            }
+        });
+    });
+}
+
+function modifyStartTimeAndEndTime(reservationStartTime, reservationEndTime, date, startTime, endTime) {
+    var now = new Date();
+    var dateInput = document.getElementById(date);
+
+    var selectedDate = new Date(dateInput.value);
+    var selectStartTime = document.getElementById(startTime);
+    var selectEndTime = document.getElementById(endTime);
+    
+    // Clear previous options
+    selectStartTime.innerHTML = '';
+    selectEndTime.innerHTML = '';
+    
+    if (selectedDate.toISOString().split('T')[0] === now.toISOString().split('T')[0]) {
+        let getHours = now.getHours();
+        let getMinutes = now.getMinutes() > 30 ? 0 : 30;
+
+        if (now.getMinutes() > 30) {
+            getHours += 1;
+        }
+
+        addOptions(getHours, getMinutes, selectStartTime);       
+        addOptions(getHours, getMinutes, selectEndTime);
+    } else {
+        addOptions(0, 0, selectStartTime);
+        addOptions(0, 0, selectEndTime);
+    }
+
+    Array.from(selectStartTime.options).forEach(option => {
+        if (option.value === reservationStartTime) {
+            option.selected = true;
+        }
+    });
+
+    Array.from(selectEndTime.options).forEach(option => {
+        if (option.value === reservationEndTime) {
+            option.selected = true;
+        }
+    });
+
+
+    document.getElementById(startTime).addEventListener('change', function() {
+        var selectEndTime = document.getElementById(endTime);
+        selectEndTime.innerHTML = '';
+        var startTimeValue = selectStartTime.value;
+        var [startHour, startMinute] = startTimeValue.split(':').map(Number);
+
+        // Add options for end time starting from the selected start time + 30 minutes
+        if (startMinute === 30) {
+            startHour += 1;
+            startMinute = 0;
+        } else {
+            startMinute = 30;
+        }
+        addOptions(startHour, startMinute, selectEndTime);
+
+        Array.from(selectEndTime.options).forEach(option => {
+            if (option.value === reservationEndTime) {
+                option.selected = true;
+            }
+        });
+    });
+}
+
+function displayEquipReservationTable() {
+    const rowsPerPage = 10;
+    let currentPage = 1;
+    let equipReservationData = [];
+    
+    function equipReservationTable() {    
+        $.ajax({
+            url: "http://localhost:3000/equip-reservation",
+            dataType: 'json',
+            success: function(data) {
+                equipReservationData = data;
+                renderTable_equipReservation();
+                renderPagination_equipReservation();
+            },
+            error: function(error) {
+                console.error('Error loading JSON data', error);
+            }
+        });
+    }
+
+    function renderTable_equipReservation() {
+        let tableBody = '';
+        const start = (currentPage - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+        const pageData = equipReservationData.slice(start, end);
+        
+        pageData.forEach((reservation,id) => {
+            tableBody += `
+                <tr>
+                    <td>${start + id + 1}</td>
+                    <td>${reservation.user}</td>
+                    <td>${reservation.date}</td>
+                    <td>${reservation.startTime}</td>
+                    <td>${reservation.endTime}</td>
+                    <td>${reservation.equipment}</td>
+                    <td>${reservation.status}</td>
+                    <td>
+                        <button class="btn btn-primary btn-l" 
+                                data-bs-toggle="modal" 
+                                href="#modify-equip-reservation"
+                                onclick="modifyEquipReservation(this)"
+                                data-user="${reservation.user}"
+                                data-date="${reservation.date}"
+                                data-startTime="${reservation.startTime}"
+                                data-endTime="${reservation.endTime}"
+                                data-equipment="${reservation.equipment}"
+                                data-status="${reservation.status}">
+                            修改
+                        </button>
+                    </td>
+                    <td>
+                        <button class="btn btn-secondary btn-l" 
+                                onclick="deleteEquipReservation(this)"
+                                data-user="${reservation.user}"
+                                data-date="${reservation.date}"
+                                data-startTime="${reservation.startTime}"
+                                data-endTime="${reservation.endTime}"
+                                data-equipment="${reservation.equipment}"
+                                data-status="${reservation.status}">
+                            刪除
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+        $('#equipReservationTable').html(tableBody);
+    }
+
+    function renderPagination_equipReservation() {
+        const pagination = $('#paginationEquipTable');
+        pagination.empty();
+
+        const totalPages = Math.ceil(equipReservationData.length / rowsPerPage);
+
+        for (let i = 1; i <= totalPages; i++) {
+            pagination.append(`
+                <button class="pageBtn btn ${i === currentPage ? 'btn-primary' : 'btn-secondary'}" onclick="changePageEquipTable(${i})">${i}</button>
+            `);
+        }
+    }
+
+    window.changePageEquipTable = function(page) {
+        currentPage = page;
+        renderTable_equipReservation();
+        renderPagination_equipReservation();
+    }
+
+    window.deleteEquipReservation = function(button) {
+        const row = button.closest('tr');
+        const equipReservationUser = button.getAttribute('data-user');
+        const equipReservationDate = button.getAttribute('data-date');
+        const equipReservationStartTime = button.getAttribute('data-startTime');
+        const equipReservationEndTime = button.getAttribute('data-endTime');
+        const equipReservationEquipment = button.getAttribute('data-equipment');
+        const equipReservationStatus = button.getAttribute('data-status');
+
+        $.ajax({
+            url: "http://localhost:3000/delete-equip-reservation",
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ 
+                user: equipReservationUser,
+                date: equipReservationDate,
+                startTime: equipReservationStartTime,
+                endTime: equipReservationEndTime,
+                equipment: equipReservationEquipment,
+                status: equipReservationStatus
+             }),
+            dataType: 'json',
+            success: function(data) {
+                console.log('Status updated successfully', data);
+                row.remove();
+            },
+            error: function(error) {
+                console.error('Error updating status', error);
+            }
+        });
+
+        renderTable_equipReservation();
+        renderPagination_equipReservation();
+    }
+
+    equipReservationTable();
+}
+
+function modifyEquipReservation(button) {
+    const equipReservationUser = button.getAttribute('data-user');
+    const equipReservationDate = button.getAttribute('data-date');
+    const equipReservationStartTime = button.getAttribute('data-startTime');
+    const equipReservationEndTime = button.getAttribute('data-endTime');
+    const equipReservationEquipment = button.getAttribute('data-equipment');
+    const equipReservationStatus = button.getAttribute('data-status');
+
+    let modifyEquipReservationFormBody = '';
+    modifyEquipReservationFormBody += `
+        <form id="modify">
+            <div class="row align-items-center">
+                <div class="form-group col-md-6 d-flex align-items-center mb-2">
+                    <label for="modify-equip-user" class="col-md-4">使用者:</label>
+                    <input type="text" class="form-control text-center" id="modify-equip-user" name="name" value="${equipReservationUser}">
+                </div>
+                <div class="form-group col-md-6 d-flex align-items-center mb-2">
+                    <label for="modify-equip-date" class="col-md-4">日期:</label>
+                    <input type="date" list="dates" class="form-control text-center" id="modify-equip-date" value="${equipReservationDate}">
+                    <datalist id="dates"></datalist>
+                </div>
+            </div>
+            <div class="row align-items-center">
+                <div class="form-group col-md-6 d-flex align-items-center mb-2">
+                    <label for="modify-equip-startTime" class="col-md-4">開始時間:</label>
+                    <select class="custom-form-select text-center flatpickr" id="modify-equip-startTime"></select>
+                </div>
+                <div class="form-group col-md-6 d-flex align-items-center mb-2">
+                    <label for="modify-equip-endTime" class="col-md-4">結束時間:</label>
+                    <select class="custom-form-select text-center flatpickr" id="modify-equip-endTime"></select>
+                </div>
+            </div>
+            <div class="row align-items-center">
+                <div class="form-group col-md-6 d-flex align-items-center mb-2">
+                    <label for="modify-equip-name" class="col-md-4">會議室:</label>
+                    <input type="text" class="form-control text-center" id="modify-equip-name" name="name" value="${equipReservationEquipment}">
+                </div>
+                <div class="form-group col-md-6 d-flex align-items-center mb-2">
+                    <label for="modify-equip-status" class="col-md-4">狀態: </label>
+                    <select class="form-select text-center" id="modify-equip-status">
+                        <option value="尚未歸還" ${equipReservationStatus === '尚未歸還' ? 'selected' : ''}>尚未歸還</option>
+                        <option value="已結束" ${equipReservationStatus === '已歸還' ? 'selected' : ''}>已歸還</option>
+                        <option value="已取消" ${equipReservationStatus === '已取消' ? 'selected' : ''}>已取消</option>
+                    </select>
+                </div>
+            </div>
+            <div class="text-center">
+                <button class="btn btn-primary btn-xl mb-4" id="modify-equip-reservation-button" type="submit">完成</button>
+            </div>
+        </form>
+    `;
+    
+    $('#modify-equip-reservation-form').html(modifyEquipReservationFormBody);
+
+    modify_equip_button_click();
+    modifyStartTimeAndEndTime(equipReservationStartTime, equipReservationEndTime, 'modify-equip-date', 'modify-equip-startTime', 'modify-equip-endTime');
+}
+
+function modify_equip_button_click() {
+    $('#modify-equip-reservation-button').on('click', function(event) {
+        event.preventDefault();
+        const modifyEquipUser = document.getElementById('modify-equip-user').value;
+        const modifyEquipDate = document.getElementById('modify-equip-date').value;
+        const modifyEquipStartTime = document.getElementById('modify-equip-startTime').value;
+        const modifyEquipEndTime = document.getElementById('modify-equip-endTime').value;
+        const modifyEquipment = document.getElementById('modify-equip-name').value;
+        const modifyEquipStatus = document.getElementById('modify-equip-status').value;
+
+        $.ajax({
+            url: "http://localhost:3000/modify-equip-reservation",
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ 
+                user: modifyEquipUser,
+                date: modifyEquipDate,
+                startTime: modifyEquipStartTime,
+                endTime: modifyEquipEndTime,
+                equipment: modifyEquipment,
+                status: modifyEquipStatus
              }),
             dataType: 'json',
             success: function(data) {

@@ -224,8 +224,9 @@ app.post('/delete-room-reservation', (req, res) => {
 });
 
 app.post('/delete-equip-reservation', (req, res) => {
-    const { room, date, startTime, endTime, status } = req.body;
+    const { user, date, startTime, endTime, equipment, status } = req.body;
     const filePath = path.join(__dirname, 'json/equip_reservation.json');
+    console.log(user, date, startTime, endTime, equipment, status);
 
     fs.readFile(filePath, 'utf8', (err, data) => {
         if (err) {
@@ -234,13 +235,6 @@ app.post('/delete-equip-reservation', (req, res) => {
         }
 
         let reservations = JSON.parse(data);
-
-
-        // reservations.forEach(reservation => {
-        //     if (reservation.room === room && reservation.date === date && reservation.startTime === startTime && reservation.endTime === endTime) {
-        //         reservation.status = status;
-        //     }
-        // })
 
         fs.writeFile(filePath, JSON.stringify(reservations, null, 2), (err) => {
             if (err) {
@@ -276,6 +270,30 @@ app.post('/delete-user', (req, res) => {
     });
 });
 
+app.post('/add-user', (req, res) => {
+    const { name, email, password, permission } = req.body;
+    const filePath = path.join(__dirname, 'json/users.json');
+    console.log(name, email, password, permission);
+
+    fs.readFile(filePath, 'utf8', (err, data) => {
+        if (err) {
+            console.error('Error reading file:', err);
+            return res.status(500).send('Error reading file');
+        }
+
+        let users = JSON.parse(data);
+
+        fs.writeFile(filePath, JSON.stringify(users, null, 2), (err) => {
+            if (err) {
+                console.error('Error writing file:', err);
+                return res.status(500).send('Error writing file');
+            }
+
+            res.json({ message: 'Status updated successfully' });
+        });
+    });
+});
+
 app.post('/modify-user', (req, res) => {
     const { name, email, password, permission } = req.body;
     const filePath = path.join(__dirname, 'json/users.json');
@@ -289,6 +307,54 @@ app.post('/modify-user', (req, res) => {
         let users = JSON.parse(data);
 
         fs.writeFile(filePath, JSON.stringify(users, null, 2), (err) => {
+            if (err) {
+                console.error('Error writing file:', err);
+                return res.status(500).send('Error writing file');
+            }
+
+            res.json({ message: 'Status updated successfully' });
+        });
+    });
+});
+
+app.post('/modify-room-reservation', (req, res) => {
+    const { user, date, startTime, endTime, name, address, status } = req.body;
+    const filePath = path.join(__dirname, 'json/room_reservation.json');
+
+    fs.readFile(filePath, 'utf8', (err, data) => {
+        if (err) {
+            console.error('Error reading file:', err);
+            return res.status(500).send('Error reading file');
+        }
+
+        let reservations = JSON.parse(data);
+
+
+        fs.writeFile(filePath, JSON.stringify(reservations, null, 2), (err) => {
+            if (err) {
+                console.error('Error writing file:', err);
+                return res.status(500).send('Error writing file');
+            }
+
+            res.json({ message: 'Status updated successfully' });
+        });
+    });
+});
+
+app.post('/modify-equip-reservation', (req, res) => {
+    const { user, date, startTime, endTime, equipment, status } = req.body;
+    const filePath = path.join(__dirname, 'json/room_reservation.json');
+
+    fs.readFile(filePath, 'utf8', (err, data) => {
+        if (err) {
+            console.error('Error reading file:', err);
+            return res.status(500).send('Error reading file');
+        }
+
+        let reservations = JSON.parse(data);
+
+
+        fs.writeFile(filePath, JSON.stringify(reservations, null, 2), (err) => {
             if (err) {
                 console.error('Error writing file:', err);
                 return res.status(500).send('Error writing file');
