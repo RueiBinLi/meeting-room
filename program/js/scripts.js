@@ -54,6 +54,26 @@ window.addEventListener('DOMContentLoaded', event => {
         });
     });
 
+    const socket = new WebSocket('ws://localhost:3000');
+
+    socket.onopen = function() {
+        console.log('WebSocket connection established');
+    };
+
+    socket.onmessage = function(event) {
+        if (event.data === 'update') {
+            window.location.reload();
+        }
+    };
+
+    socket.onclose = function() {
+        console.log('WebSocket connection closed');
+    };
+
+    socket.onerror = function(error) {
+        console.error('WebSocket error:', error);
+    };
+
 });
 
 // document.addEventListener('DOMContentLoaded', function() {
@@ -76,10 +96,14 @@ $(document).ready(function() {
         signUpBlock();
         resetPasswordBlcok();
         dateDisable();
-        setInterval(roomContainer,1000);
-        setInterval(equipContainer,1000);
-        setInterval(moreRoomContainer,1000);
-        setInterval(moreEquipContainer,1000);
+        roomContainer();
+        equipContainer();
+        moreRoomContainer();
+        moreEquipContainer();
+        // setInterval(roomContainer,1000);
+        // setInterval(equipContainer,1000);
+        // setInterval(moreRoomContainer,1000);
+        // setInterval(moreEquipContainer,1000);
         // reservate_room();
         applyRoleSettings();
     }
@@ -94,8 +118,10 @@ $(document).ready(function() {
         equipStartTimeAndEndTime();
         sliderBlock();
         dateDisable();
-        setInterval(reservationRoomContainer,1000);
-        setInterval(reservationEquipContainer,1000);
+        reservationRoomContainer();
+        reservationEquipContainer();
+        // setInterval(reservationRoomContainer,1000);
+        // setInterval(reservationEquipContainer,1000);
     }
 
     if(document.body.classList.contains('manage_interface')) {
@@ -111,7 +137,6 @@ function needLogin() {
     document.querySelectorAll('.needLogin').forEach(function(link) {
         link.addEventListener('click', function(event) {
             const loggedIn = localStorage.getItem('loggedIn');
-            console.log('loggedIn:', loggedIn);
             if (!loggedIn) {
                 event.preventDefault(); // 阻止鏈接的默認行為
                 alert("請先登入");
@@ -329,7 +354,6 @@ function checkInBlock() {
         const reservationDate = reservationInfo.date;
         const reservationStartTime = reservationInfo.startTime;
         const reservationEndTime = reservationInfo.endTime;
-        console.log(reservationName, reservationDate, reservationStartTime, reservationEndTime);
 
         $.ajax({
             url: "http://localhost:3000/update-room-reservation-status",
@@ -552,13 +576,13 @@ function displayEquipTable() {
         const reservationName = button.getAttribute('data-name');
         const reservationStatus = button.getAttribute('data-status');
 
-        console.log('Deleting reservation:', {
-            date: reservationDate,
-            startTime: reservationStartTime,
-            endTime: reservationEndTime,
-            name: reservationName,
-            status: reservationStatus
-        });
+        // console.log('Deleting reservation:', {
+        //     date: reservationDate,
+        //     startTime: reservationStartTime,
+        //     endTime: reservationEndTime,
+        //     name: reservationName,
+        //     status: reservationStatus
+        // });
 
         $.ajax({
             url: 'http://localhost:3000/delete-equip-reservation',
@@ -660,7 +684,7 @@ function sendEmail() {
             $('#resetPasswordPage').modal('show');
             $('#forgetPassword').modal('hide');
             storedVerificationCode = response.code;
-            console.log('Verification code:', storedVerificationCode);
+            // console.log('Verification code:', storedVerificationCode);
         },
         error: function(error) {
             $('#alertContainer-wrongEmail').html('');
@@ -689,7 +713,9 @@ function signUpBlock() {
         const userData = {
             email: email,
             password: password,
-            name: signUpName
+            name: signUpName,
+            verificationCode: "",
+            permission: "user"
         };
 
         $.ajax({

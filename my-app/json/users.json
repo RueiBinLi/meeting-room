@@ -54,5 +54,12 @@
     "name": "123",
     "verificationCode": "",
     "permission": "admin"
+  },
+  {
+    "email": "123@12",
+    "password": "123",
+    "name": "123",
+    "verificationCode": "",
+    "permission": "user"
   }
 ]

@@ -4,13 +4,25 @@ const fs = require('fs');
 const path = require('path');
 const cors = require('cors');
 const nodemailer = require('nodemailer');
+const http = require('http');
+const WebSocket = require('ws');
 
 const app = express();
 const PORT = 3000;
+const server = http.createServer(app);
+const wss = new WebSocket.Server({ server });
 
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+function notifyClients() {
+    wss.clients.forEach(client => {
+        if (client.readyState === WebSocket.OPEN) {
+            client.send('update');
+        }
+    });
+}
 
 app.post('/update-json', (req, res) => {
     const newData = req.body;
@@ -40,6 +52,7 @@ app.post('/update-json', (req, res) => {
             }
 
             console.log('JSON data updated successfully');
+            notifyClients();
             res.send('JSON data updated successfully');
         });
     });
@@ -195,6 +208,7 @@ app.post('/update-room-reservation-status', (req, res) => {
                 return res.status(500).send('Error writing file');
             }
 
+            notifyClients();
             res.json({ message: 'Status updated successfully' });
         });
     });
@@ -218,6 +232,7 @@ app.post('/delete-room-reservation', (req, res) => {
                 return res.status(500).send('Error writing file');
             }
 
+            notifyClients();
             res.json({ message: 'Status updated successfully' });
         });
     });
@@ -242,6 +257,7 @@ app.post('/delete-equip-reservation', (req, res) => {
                 return res.status(500).send('Error writing file');
             }
 
+            notifyClients();
             res.json({ message: 'Status updated successfully' });
         });
     });
@@ -265,6 +281,7 @@ app.post('/delete-user', (req, res) => {
                 return res.status(500).send('Error writing file');
             }
 
+            notifyClients();
             res.json({ message: 'Status updated successfully' });
         });
     });
@@ -289,6 +306,7 @@ app.post('/add-user', (req, res) => {
                 return res.status(500).send('Error writing file');
             }
 
+            notifyClients();
             res.json({ message: 'Status updated successfully' });
         });
     });
@@ -312,6 +330,7 @@ app.post('/modify-user', (req, res) => {
                 return res.status(500).send('Error writing file');
             }
 
+            notifyClients();
             res.json({ message: 'Status updated successfully' });
         });
     });
@@ -336,6 +355,7 @@ app.post('/modify-room-reservation', (req, res) => {
                 return res.status(500).send('Error writing file');
             }
 
+            notifyClients();
             res.json({ message: 'Status updated successfully' });
         });
     });
@@ -360,6 +380,7 @@ app.post('/modify-equip-reservation', (req, res) => {
                 return res.status(500).send('Error writing file');
             }
 
+            notifyClients();
             res.json({ message: 'Status updated successfully' });
         });
     });
@@ -585,6 +606,15 @@ app.post('/add-new-equip-reservation', (req, res) => {
     });
 });
 
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+wss.on('connection', ws => {
+    console.log('Client connected');
+    ws.on('close', () => console.log('Client disconnected'));
 });
+
+server.listen(3000, () => {
+    console.log('Server is running on http://localhost:3000');
+});
+
+// app.listen(PORT, () => {
+//     console.log(`Server is running on http://localhost:${PORT}`);
+// });
