@@ -24,10 +24,14 @@ sudo apt install nodejs npm
 
 Step3.  
 
-在cmd(Windows)或terminal(Ubuntu)輸入'npm install express body-parser fs path cors nodemailer'  
+在cmd(Windows)或terminal(Ubuntu)進入my-app的目錄下，輸入'npm install express body-parser fs path cors nodemailer'  
 
 Step4.  
 
 在cmd(Windows)或terminal(Ubuntu)下進入my-app的目錄下，輸入'node server.js'，可成功開啟server端  
 
 搭配vscode的live server便可使用
+
+額外安裝  
+
+進入my-app的目錄下，輸入npm install http ws
