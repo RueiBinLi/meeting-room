@@ -38,13 +38,13 @@ Step4.
 
 HomePage
 
-![Alt text](.image/meeting_room_home.png)
+![Alt text](./image/meeting_room_home.png)
 
 Website
 
-![Alt text](.image/meeting_room1.png)
-![Alt text](.image/meeting_room2.png)
-![Alt text](.image/meeting_room3.png)
-![Alt text](.image/meeting_room4.png)
-![Alt text](.image/meeting_room5.png)
-![Alt text](.image/meeting_room6.png)
+![Alt text](./image/meeting_room1.png)
+![Alt text](./image/meeting_room2.png)
+![Alt text](./image/meeting_room3.png)
+![Alt text](./image/meeting_room4.png)
+![Alt text](./image/meeting_room5.png)
+![Alt text](./image/meeting_room6.png)
