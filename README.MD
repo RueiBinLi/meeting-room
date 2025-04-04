@@ -35,3 +35,16 @@ Step4.
 額外安裝  
 
 進入my-app的目錄下，輸入npm install http ws
+
+HomePage
+
+![Alt text](./image/meeting_room_home.png)
+
+Website
+
+![Alt text](./image/meeting_room1.png)
+![Alt text](./image/meeting_room2.png)
+![Alt text](./image/meeting_room3.png)
+![Alt text](./image/meeting_room4.png)
+![Alt text](./image/meeting_room5.png)
+![Alt text](./image/meeting_room6.png)
